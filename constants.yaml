@@ -1,5 +1,5 @@
 # Chronos — single source of truth for shared constants.
-# Edit this file, then run:  python scripts/sync-constants.py
+# Edit this file, then run:  python scripts/sync-constants.py, or use the github action:  .github/workflows/sync-constants.yml
 #
 # The script generates:
 #   internal/config/constants.go
