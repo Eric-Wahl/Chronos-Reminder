@@ -7,6 +7,7 @@ import (
 	"github.com/ericp/chronos-bot-reminder/internal/bot/utils"
 	"github.com/ericp/chronos-bot-reminder/internal/database"
 	"github.com/ericp/chronos-bot-reminder/internal/database/models"
+	"github.com/ericp/chronos-bot-reminder/internal/services"
 )
 
 // PreferencesHandler routes the /preferences command to its subcommands
@@ -31,14 +32,23 @@ func PreferencesHandler(session *discordgo.Session, interaction *discordgo.Inter
 	}
 }
 
-// preferencesShowHandler displays the account's current preferences
+// preferencesShowHandler displays the account's current preferences. It
+// re-reads the account fresh from the database rather than trusting the
+// account param, which may come from the (up to 12h stale) Discord account
+// cache used to resolve the interaction's account.
 func preferencesShowHandler(session *discordgo.Session, interaction *discordgo.InteractionCreate, account *models.Account) error {
+	repo := database.GetRepositories()
+	fresh, err := repo.Account.GetByID(account.ID)
+	if err != nil || fresh == nil {
+		return utils.SendError(session, interaction, "Database Error", "Failed to retrieve your preferences.")
+	}
+
 	imageStatus := "✅ Enabled"
-	if !account.DiscordSendImage() {
+	if !fresh.DiscordSendImage() {
 		imageStatus = "❌ Disabled"
 	}
 	snoozeStatus := "✅ Enabled"
-	if !account.DiscordSnoozeEnabled() {
+	if !fresh.DiscordSnoozeEnabled() {
 		snoozeStatus = "❌ Disabled"
 	}
 
@@ -46,9 +56,9 @@ func preferencesShowHandler(session *discordgo.Session, interaction *discordgo.I
 		fmt.Sprintf("**Send reminder image:** %s\n**Snooze button:** %s", imageStatus, snoozeStatus))
 }
 
-// preferencesSetBoolHandler reads the "enabled" boolean option, saves it under
-// the given preference key, and confirms the change. label describes the
-// preference in the confirmation message (e.g. "Sending a reminder image on Discord").
+// preferencesSetBoolHandler reads the "enabled" boolean option and saves it
+// under the given preference key. label describes the preference in the
+// confirmation message (e.g. "Sending a reminder image on Discord").
 func preferencesSetBoolHandler(
 	session *discordgo.Session,
 	interaction *discordgo.InteractionCreate,
@@ -70,13 +80,7 @@ func preferencesSetBoolHandler(
 		return utils.SendError(session, interaction, "Missing Option", "Please specify whether to enable or disable this preference.")
 	}
 
-	if account.Preferences == nil {
-		account.Preferences = models.JSONB{}
-	}
-	account.Preferences[preferenceKey] = enabled
-
-	repo := database.GetRepositories()
-	if err := repo.Account.Update(account); err != nil {
+	if _, err := services.UpdateAccountPreferences(account.ID, map[string]bool{preferenceKey: enabled}); err != nil {
 		return utils.SendError(session, interaction, "Database Error", "Failed to update your preference. Please try again later.")
 	}
 

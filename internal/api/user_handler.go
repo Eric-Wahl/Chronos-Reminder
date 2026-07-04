@@ -844,24 +844,23 @@ func (h *UserHandler) UpdatePreferences(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if account.Preferences == nil {
-		account.Preferences = models.JSONB{}
-	}
+	updates := map[string]bool{}
 	if req.DiscordSendImage != nil {
-		account.Preferences[models.PrefDiscordSendImage] = *req.DiscordSendImage
+		updates[models.PrefDiscordSendImage] = *req.DiscordSendImage
 	}
 	if req.DiscordEnableSnooze != nil {
-		account.Preferences[models.PrefDiscordEnableSnooze] = *req.DiscordEnableSnooze
+		updates[models.PrefDiscordEnableSnooze] = *req.DiscordEnableSnooze
 	}
 
-	if err := h.accountRepo.Update(account); err != nil {
+	updatedAccount, err := services.UpdateAccountPreferences(accountID, updates)
+	if err != nil {
 		WriteError(w, http.StatusInternalServerError, "Failed to update preferences")
 		return
 	}
 
 	WriteJSON(w, http.StatusOK, map[string]interface{}{
 		"message":     "Preferences updated successfully",
-		"preferences": account.Preferences,
+		"preferences": updatedAccount.Preferences,
 	})
 }
 
