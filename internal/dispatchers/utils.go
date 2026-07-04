@@ -17,18 +17,6 @@ import (
 
 // DiscordSend handles sending reminders via Discord
 func DiscordSend(session *discordgo.Session, reminder *models.Reminder, channelID string, account *models.Account, roleMentionID ...string) error {
-	// Create the reminder message
-	embed := &discordgo.MessageEmbed{
-		Title:       "⌛ | You have a new reminder ! ⌛",
-		Color:       0xCEA04D,
-	}
-
-	// Send the message
-	_, err := session.ChannelMessageSendEmbed(channelID, embed)
-	if err != nil {
-		return fmt.Errorf("failed to send DM  %w", err)
-	}
-
 	// Convert the due date to the user's local timezone if available
 	loc, err := time.LoadLocation(account.Timezone.IANALocation)
 	if err == nil {
@@ -53,7 +41,7 @@ func DiscordSend(session *discordgo.Session, reminder *models.Reminder, channelI
 		messageContent = fmt.Sprintf("<@&%s>", roleMentionID[0])
 	}
 
-	// Some users prefer a plain text reminder over the generated image
+	// Some users prefer a single plain text reminder over the generated image
 	if !account.DiscordSendImage() {
 		textEmbed := &discordgo.MessageEmbed{
 			Title:       "⌛ Reminder",
@@ -69,6 +57,17 @@ func DiscordSend(session *discordgo.Session, reminder *models.Reminder, channelI
 			return fmt.Errorf("failed to send reminder: %w", err)
 		}
 		return nil
+	}
+
+	// Create the reminder message
+	embed := &discordgo.MessageEmbed{
+		Title: "⌛ | You have a new reminder ! ⌛",
+		Color: 0xCEA04D,
+	}
+
+	// Send the message
+	if _, err := session.ChannelMessageSendEmbed(channelID, embed); err != nil {
+		return fmt.Errorf("failed to send DM  %w", err)
 	}
 
 	img, err := services.NewDrawService("./assets").GenerateReminderImage(services.TextOverlay{
