@@ -21,7 +21,11 @@ func PreferencesHandler(session *discordgo.Session, interaction *discordgo.Inter
 	case "show":
 		return preferencesShowHandler(session, interaction, account)
 	case "discord-image":
-		return preferencesDiscordImageHandler(session, interaction, account, subcommand.Options)
+		return preferencesSetBoolHandler(session, interaction, account, subcommand.Options,
+			models.PrefDiscordSendImage, "Sending a reminder image on Discord")
+	case "discord-snooze":
+		return preferencesSetBoolHandler(session, interaction, account, subcommand.Options,
+			models.PrefDiscordEnableSnooze, "The Snooze button on Discord reminders")
 	default:
 		return utils.SendError(session, interaction, "Unknown Subcommand", "The specified subcommand is not recognized.")
 	}
@@ -29,19 +33,30 @@ func PreferencesHandler(session *discordgo.Session, interaction *discordgo.Inter
 
 // preferencesShowHandler displays the account's current preferences
 func preferencesShowHandler(session *discordgo.Session, interaction *discordgo.InteractionCreate, account *models.Account) error {
-	status := "✅ Enabled"
+	imageStatus := "✅ Enabled"
 	if !account.DiscordSendImage() {
-		status = "❌ Disabled"
+		imageStatus = "❌ Disabled"
+	}
+	snoozeStatus := "✅ Enabled"
+	if !account.DiscordSnoozeEnabled() {
+		snoozeStatus = "❌ Disabled"
 	}
 
 	return utils.SendInfo(session, interaction, "⚙️ Your Preferences",
-		fmt.Sprintf("**Send reminder image:** %s", status))
+		fmt.Sprintf("**Send reminder image:** %s\n**Snooze button:** %s", imageStatus, snoozeStatus))
 }
 
-// preferencesDiscordImageHandler toggles whether reminders sent to Discord
-// (via /remindme and /remindus) include a generated image in addition to the
-// text embed.
-func preferencesDiscordImageHandler(session *discordgo.Session, interaction *discordgo.InteractionCreate, account *models.Account, options []*discordgo.ApplicationCommandInteractionDataOption) error {
+// preferencesSetBoolHandler reads the "enabled" boolean option, saves it under
+// the given preference key, and confirms the change. label describes the
+// preference in the confirmation message (e.g. "Sending a reminder image on Discord").
+func preferencesSetBoolHandler(
+	session *discordgo.Session,
+	interaction *discordgo.InteractionCreate,
+	account *models.Account,
+	options []*discordgo.ApplicationCommandInteractionDataOption,
+	preferenceKey string,
+	label string,
+) error {
 	var enabled bool
 	var provided bool
 	for _, option := range options {
@@ -52,13 +67,13 @@ func preferencesDiscordImageHandler(session *discordgo.Session, interaction *dis
 	}
 
 	if !provided {
-		return utils.SendError(session, interaction, "Missing Option", "Please specify whether to enable or disable the reminder image.")
+		return utils.SendError(session, interaction, "Missing Option", "Please specify whether to enable or disable this preference.")
 	}
 
 	if account.Preferences == nil {
 		account.Preferences = models.JSONB{}
 	}
-	account.Preferences[models.PrefDiscordSendImage] = enabled
+	account.Preferences[preferenceKey] = enabled
 
 	repo := database.GetRepositories()
 	if err := repo.Account.Update(account); err != nil {
@@ -70,5 +85,5 @@ func preferencesDiscordImageHandler(session *discordgo.Session, interaction *dis
 		status = "disabled"
 	}
 	return utils.SendSuccess(session, interaction, "⚙️ Preference Updated",
-		fmt.Sprintf("Sending a reminder image on Discord is now **%s**.", status), nil)
+		fmt.Sprintf("%s is now **%s**.", label, status), nil)
 }

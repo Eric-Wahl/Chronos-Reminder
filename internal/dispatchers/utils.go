@@ -23,16 +23,19 @@ func DiscordSend(session *discordgo.Session, reminder *models.Reminder, channelI
 		reminder.RemindAtUTC = reminder.RemindAtUTC.In(loc)
 	}
 
-	// Add a button to the message
-	button := discordgo.Button{
-		Label:    "Snooze",
-		Style:    discordgo.SecondaryButton,
-		CustomID: "reminder_request_snooze_" + fmt.Sprint(reminder.ID),
-	}
-	components := []discordgo.MessageComponent{
-		discordgo.ActionsRow{
-			Components: []discordgo.MessageComponent{button},
-		},
+	// Add a Snooze button to the message, unless the account has disabled it
+	var components []discordgo.MessageComponent
+	if account.DiscordSnoozeEnabled() {
+		button := discordgo.Button{
+			Label:    "Snooze",
+			Style:    discordgo.SecondaryButton,
+			CustomID: "reminder_request_snooze_" + fmt.Sprint(reminder.ID),
+		}
+		components = []discordgo.MessageComponent{
+			discordgo.ActionsRow{
+				Components: []discordgo.MessageComponent{button},
+			},
+		}
 	}
 
 	// Build message content with role mention if provided

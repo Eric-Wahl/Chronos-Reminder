@@ -31,20 +31,33 @@ type Account struct {
 
 // Preference keys stored in Account.Preferences
 const (
-	PrefDiscordSendImage = "discord_send_image"
+	PrefDiscordSendImage    = "discord_send_image"
+	PrefDiscordEnableSnooze = "discord_enable_snooze"
 )
 
 // DiscordSendImage reports whether the account wants Discord reminders
 // (remindme/remindus) to include a generated image, in addition to the text
 // embed. Defaults to true when the preference hasn't been set.
 func (a *Account) DiscordSendImage() bool {
+	return a.boolPreference(PrefDiscordSendImage, true)
+}
+
+// DiscordSnoozeEnabled reports whether the account wants a Snooze button on
+// Discord reminders. Defaults to true when the preference hasn't been set.
+func (a *Account) DiscordSnoozeEnabled() bool {
+	return a.boolPreference(PrefDiscordEnableSnooze, true)
+}
+
+// boolPreference reads a boolean preference, falling back to defaultValue
+// when it hasn't been set.
+func (a *Account) boolPreference(key string, defaultValue bool) bool {
 	if a.Preferences == nil {
-		return true
+		return defaultValue
 	}
-	if v, ok := a.Preferences[PrefDiscordSendImage].(bool); ok {
+	if v, ok := a.Preferences[key].(bool); ok {
 		return v
 	}
-	return true
+	return defaultValue
 }
 
 // BeforeCreate hooks for setting timestamps and UUIDs

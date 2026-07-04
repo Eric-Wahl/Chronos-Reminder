@@ -19,6 +19,7 @@ import {
   Trash2,
   Key,
   Smartphone,
+  Settings,
 } from "lucide-react";
 import { accountService, authService, type Account } from "@/services";
 import { TimezoneSelect } from "@/components/common/TimezoneSelect";
@@ -68,6 +69,10 @@ export function AccountPage() {
 
   // Discord "send reminder image" preference
   const [isUpdatingDiscordImagePref, setIsUpdatingDiscordImagePref] =
+    useState(false);
+
+  // Discord "enable snooze button" preference
+  const [isUpdatingDiscordSnoozePref, setIsUpdatingDiscordSnoozePref] =
     useState(false);
 
   // Delete account state
@@ -264,7 +269,10 @@ export function AccountPage() {
     setIsUpdatingDiscordImagePref(true);
     setAccount({
       ...account,
-      preferences: { ...account.preferences, discord_send_image: enabled },
+      preferences: {
+        discord_send_image: enabled,
+        discord_enable_snooze: account.preferences?.discord_enable_snooze ?? true,
+      },
     });
 
     try {
@@ -277,11 +285,49 @@ export function AccountPage() {
           : t("account.discordImagePrefUpdateFailed");
       setAccount({
         ...account,
-        preferences: { ...account.preferences, discord_send_image: previous },
+        preferences: {
+          discord_send_image: previous,
+          discord_enable_snooze: account.preferences?.discord_enable_snooze ?? true,
+        },
       });
       toast.error(t("account.error"), { description: errorMsg });
     } finally {
       setIsUpdatingDiscordImagePref(false);
+    }
+  };
+
+  // Handle toggling the "enable snooze button" Discord preference
+  const handleToggleDiscordSnooze = async (enabled: boolean) => {
+    if (!account) return;
+    const previous = account.preferences?.discord_enable_snooze ?? true;
+
+    setIsUpdatingDiscordSnoozePref(true);
+    setAccount({
+      ...account,
+      preferences: {
+        discord_send_image: account.preferences?.discord_send_image ?? true,
+        discord_enable_snooze: enabled,
+      },
+    });
+
+    try {
+      await accountService.updateDiscordEnableSnoozePreference(enabled);
+      toast.success(t("account.discordSnoozePrefUpdated"));
+    } catch (err) {
+      const errorMsg =
+        err instanceof Error
+          ? err.message
+          : t("account.discordSnoozePrefUpdateFailed");
+      setAccount({
+        ...account,
+        preferences: {
+          discord_send_image: account.preferences?.discord_send_image ?? true,
+          discord_enable_snooze: previous,
+        },
+      });
+      toast.error(t("account.error"), { description: errorMsg });
+    } finally {
+      setIsUpdatingDiscordSnoozePref(false);
     }
   };
 
@@ -670,12 +716,12 @@ export function AccountPage() {
               </CardContent>
             </Card>
 
-            {/* Timezone Selector Section */}
+            {/* Preferences Section */}
             <Card className="border-border bg-card/95 backdrop-blur">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-accent" />
-                  {t("account.timezoneSettings")}
+                  <Settings className="w-5 h-5 text-accent" />
+                  {t("account.preferences")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -707,6 +753,78 @@ export function AccountPage() {
                   <div className="flex items-center gap-2 text-muted-foreground text-sm">
                     <Loader2 className="w-4 h-4 animate-spin" />
                     {t("account.updatingTimezone")}
+                  </div>
+                )}
+
+                {/* Discord preferences subcategory */}
+                {discordIdentity && (
+                  <div className="pt-4 border-t border-border space-y-3">
+                    <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+                      <svg
+                        className="w-4 h-4 flex-shrink-0 text-indigo-500"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.607 1.25a18.27 18.27 0 00-5.487 0c-.163-.386-.397-.875-.61-1.25a.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.056 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.042-.106 13.107 13.107 0 01-1.872-.892.077.077 0 00-.008-.128 10.713 10.713 0 00.372-.294.075.075 0 00.03-.066c.329-.246.648-.5.954-.76a.07.07 0 00.076-.01 13.697 13.697 0 0011.086 0 .07.07 0 00.076.009c.305.26.625.514.954.759a.077.077 0 00.03.067c.12.088.246.177.371.294a.077.077 0 00-.006.127 13.227 13.227 0 01-1.873.892.076.076 0 00-.041.107c.352.699.764 1.364 1.225 1.994a.076.076 0 00.084.028 19.963 19.963 0 006.002-3.03.077.077 0 00.032-.054c.5-4.817-.838-9.033-3.55-12.765a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-.969-2.157-2.156 0-1.193.974-2.157 2.157-2.157 1.193 0 2.156.964 2.156 2.157 0 1.187-.963 2.156-2.156 2.156zm7.975 0c-1.183 0-2.157-.969-2.157-2.156 0-1.193.974-2.157 2.157-2.157 1.193 0 2.157.964 2.157 2.157 0 1.187-.964 2.156-2.157 2.156z" />
+                      </svg>
+                      {t("account.discordPreferences")}
+                    </p>
+
+                    <div className="p-4 bg-secondary/20 rounded-lg border border-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-foreground">
+                          {t("account.discordSendImage")}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {t("account.discordSendImageDesc")}
+                        </p>
+                      </div>
+                      <label className="flex items-center gap-2 flex-shrink-0 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={account.preferences?.discord_send_image ?? true}
+                          disabled={isUpdatingDiscordImagePref}
+                          onChange={(e) =>
+                            handleToggleDiscordSendImage(e.target.checked)
+                          }
+                          className="w-4 h-4 accent-accent disabled:opacity-50"
+                        />
+                        <span className="text-sm text-foreground">
+                          {(account.preferences?.discord_send_image ?? true)
+                            ? t("account.enabled")
+                            : t("account.disabled")}
+                        </span>
+                      </label>
+                    </div>
+
+                    <div className="p-4 bg-secondary/20 rounded-lg border border-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-foreground">
+                          {t("account.discordEnableSnooze")}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {t("account.discordEnableSnoozeDesc")}
+                        </p>
+                      </div>
+                      <label className="flex items-center gap-2 flex-shrink-0 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={
+                            account.preferences?.discord_enable_snooze ?? true
+                          }
+                          disabled={isUpdatingDiscordSnoozePref}
+                          onChange={(e) =>
+                            handleToggleDiscordSnooze(e.target.checked)
+                          }
+                          className="w-4 h-4 accent-accent disabled:opacity-50"
+                        />
+                        <span className="text-sm text-foreground">
+                          {(account.preferences?.discord_enable_snooze ?? true)
+                            ? t("account.enabled")
+                            : t("account.disabled")}
+                        </span>
+                      </label>
+                    </div>
                   </div>
                 )}
               </CardContent>
@@ -914,36 +1032,6 @@ export function AccountPage() {
                     )}
                   </div>
                 </div>
-
-                {/* Discord "send reminder image" preference */}
-                {discordIdentity && (
-                  <div className="p-4 bg-secondary/20 rounded-lg border border-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-foreground">
-                        {t("account.discordSendImage")}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {t("account.discordSendImageDesc")}
-                      </p>
-                    </div>
-                    <label className="flex items-center gap-2 flex-shrink-0 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={account.preferences?.discord_send_image ?? true}
-                        disabled={isUpdatingDiscordImagePref}
-                        onChange={(e) =>
-                          handleToggleDiscordSendImage(e.target.checked)
-                        }
-                        className="w-4 h-4 accent-accent disabled:opacity-50"
-                      />
-                      <span className="text-sm text-foreground">
-                        {(account.preferences?.discord_send_image ?? true)
-                          ? t("account.enabled")
-                          : t("account.disabled")}
-                      </span>
-                    </label>
-                  </div>
-                )}
 
                 {/* API Key Identity */}
                 <div className="p-4 bg-secondary/20 rounded-lg border border-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">

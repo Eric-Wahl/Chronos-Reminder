@@ -39,6 +39,6 @@ jobs:
           #platforms: linux/amd64,linux/arm64
           platforms: linux/amd64
           push: true
-          tags: ghcr.io/eric-philippe/chronos-reminder:1.2.1
+          tags: ghcr.io/eric-philippe/chronos-reminder:1.2.7
           cache-from: type=gha
           cache-to: type=gha,mode=max

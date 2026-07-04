@@ -67,6 +67,9 @@ class AccountViewModel @Inject constructor(
     fun updateDiscordSendImagePreference(enabled: Boolean, successMessage: String) =
         runOp(successMessage) { repository.updateDiscordSendImagePreference(enabled) }
 
+    fun updateDiscordEnableSnoozePreference(enabled: Boolean, successMessage: String) =
+        runOp(successMessage) { repository.updateDiscordEnableSnoozePreference(enabled) }
+
     fun updateUsername(username: String, successMessage: String) =
         runOp(successMessage) { repository.updateUsername(username.trim()) }
 

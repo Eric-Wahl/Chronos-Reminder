@@ -125,6 +125,7 @@ export interface RemindersResponse {
  */
 export interface AccountPreferences {
   discord_send_image: boolean;
+  discord_enable_snooze: boolean;
 }
 
 export interface Account {

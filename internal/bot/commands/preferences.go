@@ -13,9 +13,9 @@ func init() {
 			Emoji:            "⚙️",
 			CategoryName:     "User",
 			ShortDescription: "Manage your preferences",
-			FullDescription:  "View your preferences or toggle whether Discord reminders (remindme/remindus) include a generated image in addition to the text.",
-			Usage:            "/preferences <show|discord-image>",
-			Example:          "/preferences show, /preferences discord-image enabled:false",
+			FullDescription:  "View your preferences, toggle whether Discord reminders (remindme/remindus) include a generated image in addition to the text, or toggle the Snooze button.",
+			Usage:            "/preferences <show|discord-image|discord-snooze>",
+			Example:          "/preferences show, /preferences discord-image enabled:false, /preferences discord-snooze enabled:false",
 		},
 		Data: &discordgo.ApplicationCommand{
 			Name:        "preferences",
@@ -35,6 +35,19 @@ func init() {
 							Type:        discordgo.ApplicationCommandOptionBoolean,
 							Name:        "enabled",
 							Description: "Whether to include a generated image with Discord reminders",
+							Required:    true,
+						},
+					},
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "discord-snooze",
+					Description: "Enable or disable the Snooze button on Discord reminders",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionBoolean,
+							Name:        "enabled",
+							Description: "Whether to show a Snooze button on Discord reminders",
 							Required:    true,
 						},
 					},

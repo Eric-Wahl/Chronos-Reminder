@@ -27,6 +27,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -109,6 +110,7 @@ fun AccountScreen(
     val passwordChanged = stringResource(R.string.password_changed)
     val appLoginAdded = stringResource(R.string.app_login_added)
     val discordImagePrefUpdated = stringResource(R.string.discord_image_pref_updated)
+    val discordSnoozePrefUpdated = stringResource(R.string.discord_snooze_pref_updated)
 
     val hasAppCredentials = account?.email != null
     val discordIdentity = account?.identities?.firstOrNull { it.provider == "discord" }
@@ -230,23 +232,88 @@ fun AccountScreen(
                     }
                 }
 
-                // --- Timezone ---
-                SectionHeader(stringResource(R.string.section_timezone))
-                ChronosCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-                        viewModel.loadTimezones()
-                        showTimezoneSheet = true
-                    },
-                ) {
-                    Text(
-                        text = stringResource(
-                            R.string.current_timezone,
-                            account?.timezone?.ianaLocation ?: "—",
-                        ),
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(16.dp),
-                    )
+                // --- Preferences (timezone + Discord subcategory) ---
+                SectionHeader(stringResource(R.string.section_preferences))
+                ChronosCard(modifier = Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(16.dp)) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    viewModel.loadTimezones()
+                                    showTimezoneSheet = true
+                                },
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = stringResource(
+                                    R.string.current_timezone,
+                                    account?.timezone?.ianaLocation ?: "—",
+                                ),
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.weight(1f),
+                            )
+                            Icon(
+                                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                contentDescription = null,
+                                tint = ForegroundMuted,
+                            )
+                        }
+
+                        if (discordIdentity != null) {
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+                            Text(
+                                stringResource(R.string.section_discord_preferences),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = ForegroundMuted,
+                            )
+                            Spacer(Modifier.height(8.dp))
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Column(Modifier.weight(1f)) {
+                                    Text(
+                                        stringResource(R.string.discord_send_image),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                    )
+                                    Text(
+                                        stringResource(R.string.discord_send_image_desc),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = ForegroundMuted,
+                                    )
+                                }
+                                Switch(
+                                    checked = account?.preferences?.discordSendImageOrDefault ?: true,
+                                    onCheckedChange = {
+                                        viewModel.updateDiscordSendImagePreference(it, discordImagePrefUpdated)
+                                    },
+                                    colors = SwitchDefaults.colors(checkedTrackColor = AccentOrange),
+                                )
+                            }
+
+                            Spacer(Modifier.height(16.dp))
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Column(Modifier.weight(1f)) {
+                                    Text(
+                                        stringResource(R.string.discord_enable_snooze),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                    )
+                                    Text(
+                                        stringResource(R.string.discord_enable_snooze_desc),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = ForegroundMuted,
+                                    )
+                                }
+                                Switch(
+                                    checked = account?.preferences?.discordEnableSnoozeOrDefault ?: true,
+                                    onCheckedChange = {
+                                        viewModel.updateDiscordEnableSnoozePreference(it, discordSnoozePrefUpdated)
+                                    },
+                                    colors = SwitchDefaults.colors(checkedTrackColor = AccentOrange),
+                                )
+                            }
+                        }
+                    }
                 }
 
                 // --- Username (available to all users) ---
@@ -401,38 +468,6 @@ fun AccountScreen(
                                 label = stringResource(R.string.provider_mobile),
                                 linked = true,
                                 detail = mobileIdentity.username,
-                            )
-                        }
-                    }
-                }
-
-                // --- Discord preferences (only when Discord is linked) ---
-                if (discordIdentity != null) {
-                    SectionHeader(stringResource(R.string.section_discord_preferences))
-                    ChronosCard(modifier = Modifier.fillMaxWidth()) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Column(Modifier.weight(1f)) {
-                                Text(
-                                    stringResource(R.string.discord_send_image),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                )
-                                Text(
-                                    stringResource(R.string.discord_send_image_desc),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = ForegroundMuted,
-                                )
-                            }
-                            Switch(
-                                checked = account?.preferences?.discordSendImageOrDefault ?: true,
-                                onCheckedChange = {
-                                    viewModel.updateDiscordSendImagePreference(it, discordImagePrefUpdated)
-                                },
-                                colors = SwitchDefaults.colors(checkedTrackColor = AccentOrange),
                             )
                         }
                     }

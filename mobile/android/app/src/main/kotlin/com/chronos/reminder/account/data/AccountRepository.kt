@@ -44,7 +44,12 @@ class AccountRepository @Inject constructor(
             .map { }
 
     suspend fun updateDiscordSendImagePreference(enabled: Boolean): ApiResult<Unit> =
-        safeApiCall { api.updatePreferences(PreferencesRequest(enabled)) }
+        safeApiCall { api.updatePreferences(PreferencesRequest(discordSendImage = enabled)) }
+            .onSuccess { refreshAccount() }
+            .map { }
+
+    suspend fun updateDiscordEnableSnoozePreference(enabled: Boolean): ApiResult<Unit> =
+        safeApiCall { api.updatePreferences(PreferencesRequest(discordEnableSnooze = enabled)) }
             .onSuccess { refreshAccount() }
             .map { }
 

@@ -44,26 +44,16 @@ export function ChangelogPage() {
     return <Package className="w-5 h-5 text-gray-500" />;
   };
 
-  // Parse dates and calculate proportional positions
+  // Evenly spread each version across the bar width, oldest to newest
+  // left-to-right. `changelog` is ordered newest-first.
   const datePositions = useMemo(() => {
     if (changelog.length === 0) return [];
 
-    const dates = changelog.map((v) => {
-      const [day, month, year] = v.date.split("-").map(Number);
-      return new Date(year, month - 1, day);
-    });
-
-    const minDate = new Date(Math.min(...dates.map((d) => d.getTime())));
-    const maxDate = new Date();
-    const timeRange = maxDate.getTime() - minDate.getTime();
-
+    const lastIndex = changelog.length - 1;
     return changelog.map((v, idx) => ({
       version: v.version,
       date: v.date,
-      position:
-        timeRange === 0
-          ? 50
-          : ((dates[idx].getTime() - minDate.getTime()) / timeRange) * 100,
+      position: lastIndex === 0 ? 50 : ((lastIndex - idx) / lastIndex) * 100,
     }));
   }, [changelog]);
 

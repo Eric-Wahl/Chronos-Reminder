@@ -44,6 +44,7 @@ class AccountService {
       identities: Array.isArray(account.identities) ? account.identities : [],
       preferences: {
         discord_send_image: preferences.discord_send_image !== false,
+        discord_enable_snooze: preferences.discord_enable_snooze !== false,
       },
     };
   }
@@ -117,6 +118,24 @@ class AccountService {
       await httpClient.put<ApiResponse<{ message: string }>>(
         "/api/account/preferences",
         { discord_send_image: enabled }
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error("Failed to update preference");
+    }
+  }
+
+  /**
+   * Update the "Snooze button" Discord preference. Only meaningful for
+   * accounts with a linked Discord identity.
+   */
+  async updateDiscordEnableSnoozePreference(enabled: boolean): Promise<void> {
+    try {
+      await httpClient.put<ApiResponse<{ message: string }>>(
+        "/api/account/preferences",
+        { discord_enable_snooze: enabled }
       );
     } catch (error) {
       if (error instanceof Error) {

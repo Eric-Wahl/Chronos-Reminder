@@ -16,11 +16,11 @@ import (
 
 // CreateReminderRequest represents the request body for creating a reminder
 type CreateReminderRequest struct {
-	Date         string          `json:"date"`         // ISO 8601 date format
-	Time         string          `json:"time"`         // HH:mm format
-	Message      string          `json:"message"`
-	Recurrence   json.RawMessage `json:"recurrence"`   // Can be string ("DAILY") or int (4)
-	Destinations []CreateDestinationRequest   `json:"destinations"`
+	Date         string                     `json:"date"` // ISO 8601 date format
+	Time         string                     `json:"time"` // HH:mm format
+	Message      string                     `json:"message"`
+	Recurrence   json.RawMessage            `json:"recurrence"` // Can be string ("DAILY") or int (4)
+	Destinations []CreateDestinationRequest `json:"destinations"`
 }
 
 // CreateDestinationRequest represents a destination to create
@@ -31,26 +31,26 @@ type CreateDestinationRequest struct {
 
 // CreateReminderResponse represents the response after creating a reminder
 type CreateReminderResponse struct {
-	ID              uuid.UUID         `json:"id"`
-	Message         string            `json:"message"`
-	RemindAtUTC     time.Time         `json:"remind_at_utc"`
-	RecurrenceType  string            `json:"recurrence_type"`
-	IsPaused        bool              `json:"is_paused"`
-	Destinations    []interface{}     `json:"destinations"`
+	ID             uuid.UUID     `json:"id"`
+	Message        string        `json:"message"`
+	RemindAtUTC    time.Time     `json:"remind_at_utc"`
+	RecurrenceType string        `json:"recurrence_type"`
+	IsPaused       bool          `json:"is_paused"`
+	Destinations   []interface{} `json:"destinations"`
 }
 
 // ReminderResponse represents a reminder in API responses with decoded recurrence
 type ReminderResponse struct {
-	ID              uuid.UUID              `json:"id"`
-	AccountID       uuid.UUID              `json:"account_id"`
-	RemindAtUTC     time.Time              `json:"remind_at_utc"`
-	SnoozedAtUTC    *time.Time             `json:"snoozed_at_utc,omitempty"`
-	NextFireUTC     *time.Time             `json:"next_fire_utc,omitempty"`
-	Message         string                 `json:"message"`
-	CreatedAt       time.Time              `json:"created_at"`
-	RecurrenceType  string                 `json:"recurrence_type"`
-	IsPaused        bool                   `json:"is_paused"`
-	Destinations    []models.ReminderDestination `json:"destinations,omitempty"`
+	ID             uuid.UUID                    `json:"id"`
+	AccountID      uuid.UUID                    `json:"account_id"`
+	RemindAtUTC    time.Time                    `json:"remind_at_utc"`
+	SnoozedAtUTC   *time.Time                   `json:"snoozed_at_utc,omitempty"`
+	NextFireUTC    *time.Time                   `json:"next_fire_utc,omitempty"`
+	Message        string                       `json:"message"`
+	CreatedAt      time.Time                    `json:"created_at"`
+	RecurrenceType string                       `json:"recurrence_type"`
+	IsPaused       bool                         `json:"is_paused"`
+	Destinations   []models.ReminderDestination `json:"destinations,omitempty"`
 }
 
 // ToReminderResponse converts a Reminder model to ReminderResponse with decoded recurrence
@@ -791,8 +791,9 @@ func (h *UserHandler) UpdateAccountTimezone(w http.ResponseWriter, r *http.Reque
 }
 
 // UpdatePreferences updates a subset of the account's free-form preferences.
-// Currently supports "discord_send_image", which requires a linked Discord
-// identity since it only affects Discord reminder delivery.
+// Currently supports "discord_send_image" and "discord_enable_snooze", which
+// both require a linked Discord identity since they only affect Discord
+// reminder delivery.
 // @Route: PUT /api/account/preferences
 func (h *UserHandler) UpdatePreferences(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
@@ -807,7 +808,8 @@ func (h *UserHandler) UpdatePreferences(w http.ResponseWriter, r *http.Request) 
 	}
 
 	var req struct {
-		DiscordSendImage *bool `json:"discord_send_image"`
+		DiscordSendImage    *bool `json:"discord_send_image"`
+		DiscordEnableSnooze *bool `json:"discord_enable_snooze"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		WriteError(w, http.StatusBadRequest, "Invalid request body")
@@ -815,7 +817,7 @@ func (h *UserHandler) UpdatePreferences(w http.ResponseWriter, r *http.Request) 
 	}
 	defer r.Body.Close()
 
-	if req.DiscordSendImage == nil {
+	if req.DiscordSendImage == nil && req.DiscordEnableSnooze == nil {
 		WriteError(w, http.StatusBadRequest, "No preference provided")
 		return
 	}
@@ -845,7 +847,12 @@ func (h *UserHandler) UpdatePreferences(w http.ResponseWriter, r *http.Request) 
 	if account.Preferences == nil {
 		account.Preferences = models.JSONB{}
 	}
-	account.Preferences[models.PrefDiscordSendImage] = *req.DiscordSendImage
+	if req.DiscordSendImage != nil {
+		account.Preferences[models.PrefDiscordSendImage] = *req.DiscordSendImage
+	}
+	if req.DiscordEnableSnooze != nil {
+		account.Preferences[models.PrefDiscordEnableSnooze] = *req.DiscordEnableSnooze
+	}
 
 	if err := h.accountRepo.Update(account); err != nil {
 		WriteError(w, http.StatusInternalServerError, "Failed to update preferences")

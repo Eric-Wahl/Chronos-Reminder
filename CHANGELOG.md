@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.7] - 04/07/2026
+
+### Major additions
+
+- **Mobile app**: Chronos is now available as a native Android app, with feature parity for reminders, Don't Forget Me, and account management.
+- **Discord preferences**: customize how reminders are delivered on Discord, from the web app, the mobile app, or the new `/preferences` bot command.
+  - Toggle whether reminders include a generated image, in addition to the text.
+  - Toggle whether reminders show a Snooze button.
+
+### Minor additions
+
+- Per-account limits of 100 reminders and 100 "Don't Forget Me" items to prevent abuse.
+- Account preferences reorganized into a single "Preferences" section, with a "Discord" subcategory shown only when a Discord identity is linked.
+
 ## [1.1.0] - 12/06/2026
 
 ### Major additions

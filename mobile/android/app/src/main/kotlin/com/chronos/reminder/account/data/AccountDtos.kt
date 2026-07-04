@@ -18,15 +18,20 @@ data class AccountDto(
 @Serializable
 data class AccountPreferencesDto(
     @SerialName("discord_send_image") val discordSendImage: Boolean? = null,
+    @SerialName("discord_enable_snooze") val discordEnableSnooze: Boolean? = null,
 ) {
-    // Defaults to true (send image) when the account hasn't set a preference yet.
+    // Defaults to true (send image / show Snooze) when the account hasn't set a preference yet.
     val discordSendImageOrDefault: Boolean
         get() = discordSendImage ?: true
+
+    val discordEnableSnoozeOrDefault: Boolean
+        get() = discordEnableSnooze ?: true
 }
 
 @Serializable
 data class PreferencesRequest(
-    @SerialName("discord_send_image") val discordSendImage: Boolean,
+    @SerialName("discord_send_image") val discordSendImage: Boolean? = null,
+    @SerialName("discord_enable_snooze") val discordEnableSnooze: Boolean? = null,
 )
 
 @Serializable
