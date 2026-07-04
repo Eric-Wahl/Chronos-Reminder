@@ -42,6 +42,7 @@ type IdentityRepository interface {
 // ReminderRepository interface defines operations for reminder data
 type ReminderRepository interface {
 	Create(reminder *models.Reminder, notify bool) error
+	CountByAccountID(accountID uuid.UUID) (int64, error)
 	GetByID(id uuid.UUID) (*models.Reminder, error)
 	GetByAccountID(accountID uuid.UUID) ([]models.Reminder, error)
 	GetByAccountIDWithDestinations(accountID uuid.UUID) ([]models.Reminder, error)
@@ -100,6 +101,7 @@ type DFMNoteRepository interface {
 // DFMItemRepository interface defines operations for "Don't Forget Me" note items
 type DFMItemRepository interface {
 	Create(item *models.DFMItem) error
+	CountByNoteID(noteID uuid.UUID) (int64, error)
 	GetByID(id uuid.UUID) (*models.DFMItem, error)
 	GetByNoteID(noteID uuid.UUID) ([]models.DFMItem, error)
 	Update(item *models.DFMItem) error

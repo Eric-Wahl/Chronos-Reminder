@@ -3,6 +3,7 @@ package com.chronos.reminder.dfm.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chronos.reminder.account.data.AccountRepository
+import com.chronos.reminder.core.MAX_DFM_ITEMS_PER_NOTE
 import com.chronos.reminder.core.network.ApiResult
 import com.chronos.reminder.dfm.data.DfmItem
 import com.chronos.reminder.dfm.data.DfmReminderInfo
@@ -74,6 +75,10 @@ class DfmViewModel @Inject constructor(
 
     fun addItem(content: String) {
         if (content.isBlank()) return
+        if (items.value.size >= MAX_DFM_ITEMS_PER_NOTE) {
+            _state.update { it.copy(error = "You have reached the maximum of $MAX_DFM_ITEMS_PER_NOTE items") }
+            return
+        }
         viewModelScope.launch {
             val result = repository.addItem(content.trim())
             _state.update { it.copy(error = result.errorOrNull(), itemAdded = result.errorOrNull() == null) }

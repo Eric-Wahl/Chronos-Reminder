@@ -61,6 +61,15 @@ func HandleDFMCreate(session *discordgo.Session, interaction *discordgo.Interact
 		return utils.SendError(session, interaction, "Database Error", "Failed to access your note.")
 	}
 
+	itemCount, err := repo.DFMItem.CountByNoteID(note.ID)
+	if err != nil {
+		return utils.SendError(session, interaction, "Database Error", "Failed to check your item count.")
+	}
+	if itemCount >= services.MaxDFMItemsPerNote {
+		return utils.SendError(session, interaction, "Item Limit Reached",
+			fmt.Sprintf("You have reached the maximum of %d items. Please remove some before adding new ones.", services.MaxDFMItemsPerNote))
+	}
+
 	item := &models.DFMItem{
 		NoteID:  note.ID,
 		Content: content,

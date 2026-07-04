@@ -15,6 +15,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -51,6 +52,7 @@ class CreateReminderViewModelTest {
         every { accountRepository.userTimezone } returns "Europe/Paris"
         every { destinationPrefs.getLast() } returns emptyList()
         every { destinationPrefs.save(any()) } returns Unit
+        every { repository.getReminders() } returns flowOf(emptyList())
         viewModel = CreateReminderViewModel(repository, accountRepository, discordApi, destinationPrefs)
     }
 

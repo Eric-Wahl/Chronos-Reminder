@@ -123,6 +123,10 @@ export interface RemindersResponse {
 /**
  * Account Types
  */
+export interface AccountPreferences {
+  discord_send_image: boolean;
+}
+
 export interface Account {
   id: string;
   email: string;
@@ -131,6 +135,7 @@ export interface Account {
   timezone: string;
   created_at: string;
   identities?: AccountIdentity[];
+  preferences?: AccountPreferences;
 }
 
 export interface AccountIdentity {

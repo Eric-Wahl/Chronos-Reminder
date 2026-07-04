@@ -26,7 +26,10 @@ class DFMService {
       return await httpClient.post<DFMItem>("/api/dfm/items", { content });
     } catch (error) {
       console.error("Failed to add DFM item:", error);
-      return null;
+      // Rethrow (instead of swallowing into a null return) so the caller can
+      // surface the backend's specific error message, e.g. the item limit
+      // being reached.
+      throw error instanceof Error ? error : new Error("Failed to add item");
     }
   }
 

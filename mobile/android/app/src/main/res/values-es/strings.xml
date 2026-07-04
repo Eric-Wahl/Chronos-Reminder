@@ -99,6 +99,7 @@
     <string name="pick_time">Hora</string>
     <string name="recurrence">Recurrencia</string>
     <string name="error_date_in_past">Elige una fecha y hora futura</string>
+    <string name="reminder_limit_reached">Has alcanzado el máximo de %1$d recordatorios. Elimina algunos antes de crear otros nuevos.</string>
     <string name="message_placeholder">Comprar víveres…</string>
     <string name="char_count">%1$d / %2$d</string>
     <string name="error_message_required">El mensaje no puede estar vacío</string>
@@ -127,6 +128,7 @@
     <!-- DFM -->
     <string name="dfm_title">Don\'t Forget Me</string>
     <string name="dfm_add_item_hint">Agregar un elemento…</string>
+    <string name="dfm_item_limit_reached">Has alcanzado el máximo de %1$d elementos. Elimina algunos antes de agregar otros nuevos.</string>
     <string name="dfm_add_item">Agregar</string>
     <string name="dfm_delete_item">Eliminar elemento</string>
     <string name="dfm_delete_confirm_title">¿Eliminar elemento?</string>
@@ -159,6 +161,10 @@
     <string name="section_email">Cambiar correo</string>
     <string name="section_password">Cambiar contraseña</string>
     <string name="section_identities">Identidades conectadas</string>
+    <string name="section_discord_preferences">Preferencias de Discord</string>
+    <string name="discord_send_image">Enviar imagen con el recordatorio</string>
+    <string name="discord_send_image_desc">Incluir una imagen generada con tus recordatorios de Discord, además del texto</string>
+    <string name="discord_image_pref_updated">Preferencia actualizada</string>
     <string name="section_api_keys">Claves API</string>
     <string name="section_about">Acerca de</string>
     <string name="about_title">Acerca de Chronos</string>

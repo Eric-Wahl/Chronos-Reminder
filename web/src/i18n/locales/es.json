@@ -199,6 +199,10 @@
     "workdays": "Días de Trabajo",
     "weekend": "Fin de Semana"
   },
+  "reminderLimit": {
+    "reachedTitle": "Límite de recordatorios alcanzado",
+    "reachedDesc": "Has alcanzado el máximo de {{max}} recordatorios. Elimina algunos antes de crear otros nuevos."
+  },
   "reminderCreation": {
     "title": "Crear un Recordatorio",
     "step": "Paso {{current}} de {{total}}",
@@ -429,6 +433,12 @@
     "connected": "Conectado",
     "notConnected": "No conectado",
     "connectDiscord": "Conectar Discord",
+    "discordSendImage": "Enviar imagen con el recordatorio",
+    "discordSendImageDesc": "Incluir una imagen generada con tus recordatorios de Discord, además del texto",
+    "discordImagePrefUpdated": "Preferencia actualizada",
+    "discordImagePrefUpdateFailed": "Error al actualizar la preferencia",
+    "enabled": "Activado",
+    "disabled": "Desactivado",
     "addApp": {
       "button": "Añadir inicio de sesión",
       "cancel": "Cancelar",
@@ -857,6 +867,8 @@
     "cancelEdit": "Cancelar edición",
     "itemAdded": "Elemento agregado a tu nota",
     "itemAddFailed": "No se pudo agregar el elemento",
+    "itemLimitReachedTitle": "Límite de elementos alcanzado",
+    "itemLimitReachedDesc": "Has alcanzado el máximo de {{max}} elementos. Elimina algunos antes de agregar otros nuevos.",
     "itemUpdated": "Elemento actualizado",
     "itemUpdateFailed": "No se pudo actualizar el elemento",
     "itemDeleted": "Elemento eliminado de tu nota",

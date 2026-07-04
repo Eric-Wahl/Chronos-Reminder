@@ -77,6 +77,7 @@ import java.time.ZoneId
 fun DfmScreen(viewModel: DfmViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val items by viewModel.items.collectAsStateWithLifecycle()
+    val itemLimitReached = items.size >= com.chronos.reminder.core.MAX_DFM_ITEMS_PER_NOTE
     val reminderInfo by viewModel.reminderInfo.collectAsStateWithLifecycle()
 
     var newItemText by rememberSaveable { mutableStateOf("") }
@@ -175,11 +176,12 @@ fun DfmScreen(viewModel: DfmViewModel = hiltViewModel()) {
                         placeholder = stringResource(R.string.dfm_add_item_hint),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                         keyboardActions = KeyboardActions(onDone = {
-                            if (newItemText.isNotBlank()) {
+                            if (newItemText.isNotBlank() && !itemLimitReached) {
                                 viewModel.addItem(newItemText)
                                 newItemText = ""
                             }
                         }),
+                        enabled = !itemLimitReached,
                     )
                     Spacer(Modifier.width(8.dp))
                     IconButton(
@@ -187,7 +189,7 @@ fun DfmScreen(viewModel: DfmViewModel = hiltViewModel()) {
                             viewModel.addItem(newItemText)
                             newItemText = ""
                         },
-                        enabled = newItemText.isNotBlank(),
+                        enabled = newItemText.isNotBlank() && !itemLimitReached,
                     ) {
                         Icon(
                             Icons.Default.Add,
@@ -195,6 +197,16 @@ fun DfmScreen(viewModel: DfmViewModel = hiltViewModel()) {
                             tint = AccentOrange,
                         )
                     }
+                }
+                if (itemLimitReached) {
+                    Text(
+                        text = stringResource(
+                            R.string.dfm_item_limit_reached,
+                            com.chronos.reminder.core.MAX_DFM_ITEMS_PER_NOTE,
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
                 }
                 Spacer(Modifier.height(8.dp))
 

@@ -168,6 +168,16 @@ func (h *UserHandler) CreateReminder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	reminderCount, err := h.reminderRepo.CountByAccountID(accountID)
+	if err != nil {
+		WriteError(w, http.StatusInternalServerError, "Failed to check reminder count")
+		return
+	}
+	if reminderCount >= services.MaxRemindersPerAccount {
+		WriteError(w, http.StatusBadRequest, fmt.Sprintf("You have reached the maximum of %d reminders", services.MaxRemindersPerAccount))
+		return
+	}
+
 	// Parse the reminder date and time in user's timezone
 	location, err := time.LoadLocation(account.Timezone.IANALocation)
 	if err != nil {
@@ -777,6 +787,74 @@ func (h *UserHandler) UpdateAccountTimezone(w http.ResponseWriter, r *http.Reque
 
 	WriteJSON(w, http.StatusOK, map[string]string{
 		"message": "Timezone updated successfully",
+	})
+}
+
+// UpdatePreferences updates a subset of the account's free-form preferences.
+// Currently supports "discord_send_image", which requires a linked Discord
+// identity since it only affects Discord reminder delivery.
+// @Route: PUT /api/account/preferences
+func (h *UserHandler) UpdatePreferences(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
+		WriteError(w, http.StatusMethodNotAllowed, "Method not allowed")
+		return
+	}
+
+	accountID, err := h.extractAccountIDFromToken(r)
+	if err != nil {
+		WriteError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	var req struct {
+		DiscordSendImage *bool `json:"discord_send_image"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		WriteError(w, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+	defer r.Body.Close()
+
+	if req.DiscordSendImage == nil {
+		WriteError(w, http.StatusBadRequest, "No preference provided")
+		return
+	}
+
+	account, err := h.accountRepo.GetWithIdentities(accountID)
+	if err != nil {
+		WriteError(w, http.StatusInternalServerError, "Failed to retrieve account")
+		return
+	}
+	if account == nil {
+		WriteError(w, http.StatusNotFound, "Account not found")
+		return
+	}
+
+	hasDiscord := false
+	for _, identity := range account.Identities {
+		if identity.Provider == models.ProviderDiscord {
+			hasDiscord = true
+			break
+		}
+	}
+	if !hasDiscord {
+		WriteError(w, http.StatusBadRequest, "A linked Discord identity is required to change this preference")
+		return
+	}
+
+	if account.Preferences == nil {
+		account.Preferences = models.JSONB{}
+	}
+	account.Preferences[models.PrefDiscordSendImage] = *req.DiscordSendImage
+
+	if err := h.accountRepo.Update(account); err != nil {
+		WriteError(w, http.StatusInternalServerError, "Failed to update preferences")
+		return
+	}
+
+	WriteJSON(w, http.StatusOK, map[string]interface{}{
+		"message":     "Preferences updated successfully",
+		"preferences": account.Preferences,
 	})
 }
 

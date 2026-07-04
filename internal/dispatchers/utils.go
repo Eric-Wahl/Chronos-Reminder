@@ -34,7 +34,42 @@ func DiscordSend(session *discordgo.Session, reminder *models.Reminder, channelI
 	if err == nil {
 		reminder.RemindAtUTC = reminder.RemindAtUTC.In(loc)
 	}
-	
+
+	// Add a button to the message
+	button := discordgo.Button{
+		Label:    "Snooze",
+		Style:    discordgo.SecondaryButton,
+		CustomID: "reminder_request_snooze_" + fmt.Sprint(reminder.ID),
+	}
+	components := []discordgo.MessageComponent{
+		discordgo.ActionsRow{
+			Components: []discordgo.MessageComponent{button},
+		},
+	}
+
+	// Build message content with role mention if provided
+	var messageContent string
+	if len(roleMentionID) > 0 && roleMentionID[0] != "" {
+		messageContent = fmt.Sprintf("<@&%s>", roleMentionID[0])
+	}
+
+	// Some users prefer a plain text reminder over the generated image
+	if !account.DiscordSendImage() {
+		textEmbed := &discordgo.MessageEmbed{
+			Title:       "⌛ Reminder",
+			Description: fmt.Sprintf("**%s**\n\n🕒 %s", reminder.Message, reminder.RemindAtUTC.Format("Monday, January 2, 2006 at 15:04")),
+			Color:       0xCEA04D,
+		}
+		msg := &discordgo.MessageSend{
+			Content:    messageContent,
+			Embeds:     []*discordgo.MessageEmbed{textEmbed},
+			Components: components,
+		}
+		if _, err := session.ChannelMessageSendComplex(channelID, msg); err != nil {
+			return fmt.Errorf("failed to send reminder: %w", err)
+		}
+		return nil
+	}
 
 	img, err := services.NewDrawService("./assets").GenerateReminderImage(services.TextOverlay{
 		Label: reminder.Message,
@@ -52,24 +87,6 @@ func DiscordSend(session *discordgo.Session, reminder *models.Reminder, channelI
 		return fmt.Errorf("failed to encode reminder image: %w", err)
 	}
 
-		// Add a button to the message
-	button := discordgo.Button{
-		Label:   "Snooze",
-		Style:   discordgo.SecondaryButton,
-		CustomID: "reminder_request_snooze_" + fmt.Sprint(reminder.ID),
-	}
-	components := []discordgo.MessageComponent{
-		discordgo.ActionsRow{
-			Components: []discordgo.MessageComponent{button},
-		},
-	}
-	
-	// Build message content with role mention if provided
-	var messageContent string
-	if len(roleMentionID) > 0 && roleMentionID[0] != "" {
-		messageContent = fmt.Sprintf("<@&%s>", roleMentionID[0])
-	}
-	
 	msg := &discordgo.MessageSend{
 		Content: messageContent,
 		File: &discordgo.File{

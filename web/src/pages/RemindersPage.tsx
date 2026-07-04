@@ -14,10 +14,13 @@ import {
   type Account,
 } from "@/services";
 import { Footer } from "@/components/common/footer";
+import { useToast } from "@/hooks/useToast";
+import { MAX_REMINDERS_PER_ACCOUNT } from "@/lib/limits";
 
 export function RemindersPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const toast = useToast();
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [account, setAccount] = useState<Account | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -56,7 +59,17 @@ export function RemindersPage() {
     return reminderDate > new Date();
   }).length;
 
+  const reminderLimitReached = totalReminders >= MAX_REMINDERS_PER_ACCOUNT;
+
   const handleAddReminder = () => {
+    if (reminderLimitReached) {
+      toast.error(t("reminderLimit.reachedTitle"), {
+        description: t("reminderLimit.reachedDesc", {
+          max: MAX_REMINDERS_PER_ACCOUNT,
+        }),
+      });
+      return;
+    }
     navigate("/reminders/create");
   };
 
@@ -78,8 +91,16 @@ export function RemindersPage() {
               </p>
             </div>
             <Button
-              onClick={() => navigate("/reminders/create")}
-              className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold w-full sm:w-auto gap-2"
+              onClick={handleAddReminder}
+              disabled={reminderLimitReached}
+              title={
+                reminderLimitReached
+                  ? t("reminderLimit.reachedDesc", {
+                      max: MAX_REMINDERS_PER_ACCOUNT,
+                    })
+                  : undefined
+              }
+              className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold w-full sm:w-auto gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Plus className="w-4 h-4" />
               {t("welcome.newReminder")}
@@ -126,6 +147,12 @@ export function RemindersPage() {
                   <CardContent>
                     <div className="text-3xl font-bold text-foreground">
                       {totalReminders}
+                      {totalReminders >= MAX_REMINDERS_PER_ACCOUNT * 0.8 && (
+                        <span className="text-sm font-normal text-muted-foreground">
+                          {" "}
+                          / {MAX_REMINDERS_PER_ACCOUNT}
+                        </span>
+                      )}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
                       {t("overview.active")}: {activeReminders}

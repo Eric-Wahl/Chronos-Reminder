@@ -35,6 +35,8 @@ import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -106,6 +108,7 @@ fun AccountScreen(
     val emailUpdated = stringResource(R.string.email_updated)
     val passwordChanged = stringResource(R.string.password_changed)
     val appLoginAdded = stringResource(R.string.app_login_added)
+    val discordImagePrefUpdated = stringResource(R.string.discord_image_pref_updated)
 
     val hasAppCredentials = account?.email != null
     val discordIdentity = account?.identities?.firstOrNull { it.provider == "discord" }
@@ -398,6 +401,38 @@ fun AccountScreen(
                                 label = stringResource(R.string.provider_mobile),
                                 linked = true,
                                 detail = mobileIdentity.username,
+                            )
+                        }
+                    }
+                }
+
+                // --- Discord preferences (only when Discord is linked) ---
+                if (discordIdentity != null) {
+                    SectionHeader(stringResource(R.string.section_discord_preferences))
+                    ChronosCard(modifier = Modifier.fillMaxWidth()) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Column(Modifier.weight(1f)) {
+                                Text(
+                                    stringResource(R.string.discord_send_image),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                )
+                                Text(
+                                    stringResource(R.string.discord_send_image_desc),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = ForegroundMuted,
+                                )
+                            }
+                            Switch(
+                                checked = account?.preferences?.discordSendImageOrDefault ?: true,
+                                onCheckedChange = {
+                                    viewModel.updateDiscordSendImagePreference(it, discordImagePrefUpdated)
+                                },
+                                colors = SwitchDefaults.colors(checkedTrackColor = AccentOrange),
                             )
                         }
                     }

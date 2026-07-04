@@ -54,6 +54,14 @@ func (r *reminderRepository) Create(reminder *models.Reminder, notify bool) erro
 	return err
 }
 
+// CountByAccountID returns how many reminders currently belong to an account,
+// used to enforce the per-account reminder cap.
+func (r *reminderRepository) CountByAccountID(accountID uuid.UUID) (int64, error) {
+	var count int64
+	err := r.db.Model(&models.Reminder{}).Where("account_id = ?", accountID).Count(&count).Error
+	return count, err
+}
+
 func (r *reminderRepository) GetByID(id uuid.UUID) (*models.Reminder, error) {
 	var reminder models.Reminder
 	err := r.db.First(&reminder, "id = ?", id).Error

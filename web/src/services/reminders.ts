@@ -127,7 +127,10 @@ class RemindersService {
       );
     } catch (error) {
       console.error("Failed to create reminder:", error);
-      return null;
+      // Rethrow (instead of swallowing into a null return) so the caller can
+      // surface the backend's specific error message, e.g. the reminder
+      // limit being reached.
+      throw error instanceof Error ? error : new Error("Failed to create reminder");
     }
   }
 

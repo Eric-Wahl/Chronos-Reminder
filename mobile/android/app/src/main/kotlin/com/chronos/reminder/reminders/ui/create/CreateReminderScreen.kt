@@ -41,6 +41,10 @@ fun CreateReminderScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var dateError by rememberSaveable { mutableStateOf<String?>(null) }
     val dateInPastError = stringResource(R.string.error_date_in_past)
+    val reminderLimitReachedError = stringResource(
+        R.string.reminder_limit_reached,
+        com.chronos.reminder.core.MAX_REMINDERS_PER_ACCOUNT,
+    )
 
     LaunchedEffect(uiState.created) {
         if (uiState.created) onCreated()
@@ -136,7 +140,8 @@ fun CreateReminderScreen(
                             nextLabel = stringResource(R.string.create),
                             onBack = { viewModel.goToStep(2) },
                             onNext = viewModel::submit,
-                            nextEnabled = uiState.form.destinations.isNotEmpty(),
+                            nextEnabled = uiState.form.destinations.isNotEmpty() &&
+                                !uiState.reminderLimitReached,
                             nextLoading = uiState.submitting,
                         )
                     }
@@ -145,7 +150,9 @@ fun CreateReminderScreen(
             }
 
             ErrorBanner(
-                message = dateError ?: uiState.error,
+                message = dateError
+                    ?: uiState.error
+                    ?: reminderLimitReachedError.takeIf { uiState.reminderLimitReached },
                 modifier = Modifier.align(Alignment.BottomCenter),
                 onDismiss = {
                     dateError = null

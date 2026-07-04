@@ -29,6 +29,11 @@ class AccountService {
       }
     }
 
+    const preferences =
+      account.preferences && typeof account.preferences === "object"
+        ? (account.preferences as unknown as Record<string, unknown>)
+        : {};
+
     return {
       id: String(account.id || ""),
       email: String(account.email || ""),
@@ -37,6 +42,9 @@ class AccountService {
       timezone,
       created_at: String(account.created_at || ""),
       identities: Array.isArray(account.identities) ? account.identities : [],
+      preferences: {
+        discord_send_image: preferences.discord_send_image !== false,
+      },
     };
   }
 
@@ -97,6 +105,24 @@ class AccountService {
         throw error;
       }
       throw new Error("Failed to update timezone");
+    }
+  }
+
+  /**
+   * Update the "send reminder image" Discord preference. Only meaningful
+   * for accounts with a linked Discord identity.
+   */
+  async updateDiscordSendImagePreference(enabled: boolean): Promise<void> {
+    try {
+      await httpClient.put<ApiResponse<{ message: string }>>(
+        "/api/account/preferences",
+        { discord_send_image: enabled }
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error("Failed to update preference");
     }
   }
 

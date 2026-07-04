@@ -228,6 +228,7 @@ func registerUserRoutes(mux *WrappedMux, userHandler *UserHandler, discordOAuthH
 	mux.Handle("GET /api/account", chainMiddleware(http.HandlerFunc(userHandler.GetAccount)))
 	mux.Handle("POST /api/account/identity/app/change-password", chainMiddleware(http.HandlerFunc(userHandler.ChangeAppIdentityPassword)))
 	mux.Handle("PUT /api/account/timezone", chainMiddleware(http.HandlerFunc(userHandler.UpdateAccountTimezone)))
+	mux.Handle("PUT /api/account/preferences", chainMiddleware(http.HandlerFunc(userHandler.UpdatePreferences)))
 	mux.Handle("PUT /api/account/identity/app/username", chainMiddleware(http.HandlerFunc(userHandler.UpdateAppIdentityUsername)))
 	mux.Handle("PUT /api/account/identity/app/email", chainMiddleware(http.HandlerFunc(userHandler.UpdateAppIdentityEmail)))
 	mux.Handle("DELETE /api/account", chainMiddleware(http.HandlerFunc(userHandler.DeleteAccount)))

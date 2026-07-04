@@ -43,6 +43,11 @@ class AccountRepository @Inject constructor(
             .onSuccess { refreshAccount() }
             .map { }
 
+    suspend fun updateDiscordSendImagePreference(enabled: Boolean): ApiResult<Unit> =
+        safeApiCall { api.updatePreferences(PreferencesRequest(enabled)) }
+            .onSuccess { refreshAccount() }
+            .map { }
+
     suspend fun updateUsername(username: String): ApiResult<Unit> =
         safeApiCall { api.updateUsername(UsernameRequest(username)) }
             .onSuccess { refreshAccount() }

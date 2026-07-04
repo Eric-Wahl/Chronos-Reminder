@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -115,6 +116,16 @@ func (h *DFMHandler) AddItem(w http.ResponseWriter, r *http.Request) {
 	note, err := h.noteRepo.GetOrCreateByAccountID(accountID)
 	if err != nil {
 		WriteError(w, http.StatusInternalServerError, "Failed to fetch note")
+		return
+	}
+
+	itemCount, err := h.itemRepo.CountByNoteID(note.ID)
+	if err != nil {
+		WriteError(w, http.StatusInternalServerError, "Failed to check item count")
+		return
+	}
+	if itemCount >= services.MaxDFMItemsPerNote {
+		WriteError(w, http.StatusBadRequest, fmt.Sprintf("You have reached the maximum of %d items", services.MaxDFMItemsPerNote))
 		return
 	}
 

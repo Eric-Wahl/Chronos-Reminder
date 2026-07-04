@@ -108,6 +108,14 @@ func NewDFMItemRepository(db *gorm.DB) DFMItemRepository {
 	return &dfmItemRepository{db: db}
 }
 
+// CountByNoteID returns how many items currently belong to a note, used to
+// enforce the per-note item cap.
+func (r *dfmItemRepository) CountByNoteID(noteID uuid.UUID) (int64, error) {
+	var count int64
+	err := r.db.Model(&models.DFMItem{}).Where("note_id = ?", noteID).Count(&count).Error
+	return count, err
+}
+
 func (r *dfmItemRepository) Create(item *models.DFMItem) error {
 	// Append at the end of the list by default
 	if item.Position == 0 {

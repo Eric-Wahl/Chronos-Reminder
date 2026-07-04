@@ -19,13 +19,32 @@ type Account struct {
 	Username      *string   `json:"username"`                 // display name, nullable
 	PasswordHash  *string   `json:"-"`                        // login password, nullable; hidden in JSON
 	EmailVerified bool      `gorm:"type:boolean;default:false" json:"email_verified"`
+	Preferences   JSONB     `gorm:"type:jsonb" json:"preferences,omitempty"` // free-form user preferences, nullable
 	CreatedAt     time.Time `gorm:"not null;default:now()" json:"created_at"`
 	UpdatedAt     time.Time `gorm:"not null;default:now()" json:"updated_at"`
-	
+
 	// Relationships
 	Timezone   *Timezone  `gorm:"foreignKey:TimezoneID" json:"timezone,omitempty"`
 	Identities []Identity `gorm:"foreignKey:AccountID;constraint:OnDelete:CASCADE" json:"identities,omitempty"`
 	Reminders  []Reminder `gorm:"foreignKey:AccountID;constraint:OnDelete:CASCADE" json:"reminders,omitempty"`
+}
+
+// Preference keys stored in Account.Preferences
+const (
+	PrefDiscordSendImage = "discord_send_image"
+)
+
+// DiscordSendImage reports whether the account wants Discord reminders
+// (remindme/remindus) to include a generated image, in addition to the text
+// embed. Defaults to true when the preference hasn't been set.
+func (a *Account) DiscordSendImage() bool {
+	if a.Preferences == nil {
+		return true
+	}
+	if v, ok := a.Preferences[PrefDiscordSendImage].(bool); ok {
+		return v
+	}
+	return true
 }
 
 // BeforeCreate hooks for setting timestamps and UUIDs

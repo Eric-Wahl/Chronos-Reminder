@@ -66,6 +66,10 @@ export function AccountPage() {
   const [isUpdatingEmail, setIsUpdatingEmail] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
 
+  // Discord "send reminder image" preference
+  const [isUpdatingDiscordImagePref, setIsUpdatingDiscordImagePref] =
+    useState(false);
+
   // Delete account state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
@@ -249,6 +253,35 @@ export function AccountPage() {
       });
     } finally {
       setIsChangingTimezone(false);
+    }
+  };
+
+  // Handle toggling the "send reminder image" Discord preference
+  const handleToggleDiscordSendImage = async (enabled: boolean) => {
+    if (!account) return;
+    const previous = account.preferences?.discord_send_image ?? true;
+
+    setIsUpdatingDiscordImagePref(true);
+    setAccount({
+      ...account,
+      preferences: { ...account.preferences, discord_send_image: enabled },
+    });
+
+    try {
+      await accountService.updateDiscordSendImagePreference(enabled);
+      toast.success(t("account.discordImagePrefUpdated"));
+    } catch (err) {
+      const errorMsg =
+        err instanceof Error
+          ? err.message
+          : t("account.discordImagePrefUpdateFailed");
+      setAccount({
+        ...account,
+        preferences: { ...account.preferences, discord_send_image: previous },
+      });
+      toast.error(t("account.error"), { description: errorMsg });
+    } finally {
+      setIsUpdatingDiscordImagePref(false);
     }
   };
 
@@ -881,6 +914,36 @@ export function AccountPage() {
                     )}
                   </div>
                 </div>
+
+                {/* Discord "send reminder image" preference */}
+                {discordIdentity && (
+                  <div className="p-4 bg-secondary/20 rounded-lg border border-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-foreground">
+                        {t("account.discordSendImage")}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {t("account.discordSendImageDesc")}
+                      </p>
+                    </div>
+                    <label className="flex items-center gap-2 flex-shrink-0 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={account.preferences?.discord_send_image ?? true}
+                        disabled={isUpdatingDiscordImagePref}
+                        onChange={(e) =>
+                          handleToggleDiscordSendImage(e.target.checked)
+                        }
+                        className="w-4 h-4 accent-accent disabled:opacity-50"
+                      />
+                      <span className="text-sm text-foreground">
+                        {(account.preferences?.discord_send_image ?? true)
+                          ? t("account.enabled")
+                          : t("account.disabled")}
+                      </span>
+                    </label>
+                  </div>
+                )}
 
                 {/* API Key Identity */}
                 <div className="p-4 bg-secondary/20 rounded-lg border border-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">

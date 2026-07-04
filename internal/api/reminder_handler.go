@@ -360,6 +360,16 @@ func (h *ReminderHandler) DuplicateReminder(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	reminderCount, err := h.reminderRepo.CountByAccountID(accountID)
+	if err != nil {
+		WriteError(w, http.StatusInternalServerError, "Failed to check reminder count")
+		return
+	}
+	if reminderCount >= services.MaxRemindersPerAccount {
+		WriteError(w, http.StatusBadRequest, fmt.Sprintf("You have reached the maximum of %d reminders", services.MaxRemindersPerAccount))
+		return
+	}
+
 	// Create new reminder
 	newReminder := &models.Reminder{
 		ID:             uuid.New(),

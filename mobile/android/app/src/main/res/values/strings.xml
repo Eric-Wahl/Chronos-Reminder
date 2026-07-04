@@ -87,6 +87,7 @@
     <string name="pick_time">Time</string>
     <string name="recurrence">Recurrence</string>
     <string name="error_date_in_past">Pick a date and time in the future</string>
+    <string name="reminder_limit_reached">You have reached the maximum of %1$d reminders. Delete some before creating new ones.</string>
     <string name="message_placeholder">Buy groceries…</string>
     <string name="char_count">%1$d / %2$d</string>
     <string name="error_message_required">Message cannot be empty</string>
@@ -117,6 +118,7 @@
     <!-- DFM -->
     <string name="dfm_title">Don\'t Forget Me</string>
     <string name="dfm_add_item_hint">Add an item…</string>
+    <string name="dfm_item_limit_reached">You have reached the maximum of %1$d items. Remove some before adding new ones.</string>
     <string name="dfm_add_item">Add item</string>
     <string name="dfm_delete_item">Delete item</string>
     <string name="dfm_delete_confirm_title">Delete item?</string>
@@ -150,6 +152,10 @@
     <string name="section_email">Change Email</string>
     <string name="section_password">Change Password</string>
     <string name="section_identities">Connected Identities</string>
+    <string name="section_discord_preferences">Discord Preferences</string>
+    <string name="discord_send_image">Send reminder image</string>
+    <string name="discord_send_image_desc">Include a generated image with your Discord reminders, in addition to the text</string>
+    <string name="discord_image_pref_updated">Preference updated</string>
     <string name="section_api_keys">API Keys</string>
     <string name="section_danger">Danger Zone</string>
     <string name="current_timezone">Current timezone: %1$s</string>

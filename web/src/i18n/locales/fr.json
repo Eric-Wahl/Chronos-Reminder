@@ -198,6 +198,10 @@
     "workdays": "Jours de Travail",
     "weekend": "Fin de Semaine"
   },
+  "reminderLimit": {
+    "reachedTitle": "Limite de rappels atteinte",
+    "reachedDesc": "Vous avez atteint la limite de {{max}} rappels. Supprimez-en avant d'en créer de nouveaux."
+  },
   "reminderCreation": {
     "title": "Créer un Rappel",
     "step": "Étape {{current}} sur {{total}}",
@@ -430,6 +434,12 @@
     "connected": "Connecté",
     "notConnected": "Non connecté",
     "connectDiscord": "Connecter Discord",
+    "discordSendImage": "Envoyer une image avec le rappel",
+    "discordSendImageDesc": "Inclure une image générée avec vos rappels Discord, en plus du texte",
+    "discordImagePrefUpdated": "Préférence mise à jour",
+    "discordImagePrefUpdateFailed": "Échec de la mise à jour de la préférence",
+    "enabled": "Activé",
+    "disabled": "Désactivé",
     "addApp": {
       "button": "Ajouter une connexion",
       "cancel": "Annuler",
@@ -856,6 +866,8 @@
     "cancelEdit": "Annuler la modification",
     "itemAdded": "Élément ajouté à votre note",
     "itemAddFailed": "Impossible d'ajouter l'élément",
+    "itemLimitReachedTitle": "Limite d'éléments atteinte",
+    "itemLimitReachedDesc": "Vous avez atteint la limite de {{max}} éléments. Supprimez-en avant d'en ajouter de nouveaux.",
     "itemUpdated": "Élément mis à jour",
     "itemUpdateFailed": "Impossible de mettre à jour l'élément",
     "itemDeleted": "Élément supprimé de votre note",

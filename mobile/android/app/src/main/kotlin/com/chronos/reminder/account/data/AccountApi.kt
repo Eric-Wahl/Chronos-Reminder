@@ -17,6 +17,9 @@ interface AccountApi {
     @PUT("api/account/timezone")
     suspend fun updateTimezone(@Body body: TimezoneRequest): Response<MessageResponse>
 
+    @PUT("api/account/preferences")
+    suspend fun updatePreferences(@Body body: PreferencesRequest): Response<MessageResponse>
+
     @PUT("api/account/identity/app/username")
     suspend fun updateUsername(@Body body: UsernameRequest): Response<MessageResponse>
 

@@ -11,7 +11,22 @@ data class AccountDto(
     @SerialName("email_verified") val emailVerified: Boolean = false,
     val timezone: TimezoneDto? = null,
     val identities: List<IdentityDto> = emptyList(),
+    val preferences: AccountPreferencesDto? = null,
     @SerialName("created_at") val createdAt: String? = null,
+)
+
+@Serializable
+data class AccountPreferencesDto(
+    @SerialName("discord_send_image") val discordSendImage: Boolean? = null,
+) {
+    // Defaults to true (send image) when the account hasn't set a preference yet.
+    val discordSendImageOrDefault: Boolean
+        get() = discordSendImage ?: true
+}
+
+@Serializable
+data class PreferencesRequest(
+    @SerialName("discord_send_image") val discordSendImage: Boolean,
 )
 
 @Serializable

@@ -64,8 +64,17 @@ func reminderHandler(session *discordgo.Session, interaction *discordgo.Interact
 	// Get recurrence type value
 	recurrenceTypeValue, exists := services.RecurrenceTypeMap[strings.ToUpper(recurrenceType)]
 	if !exists {
-		return utils.SendError(session, interaction, "Invalid Recurrence Type", 
+		return utils.SendError(session, interaction, "Invalid Recurrence Type",
 			fmt.Sprintf("Invalid recurrence type '%s'. Valid options are: ONCE, YEARLY, MONTHLY, WEEKLY, DAILY, HOURLY, WORKDAYS, WEEKEND.", recurrenceType))
+	}
+
+	reminderCount, err := repo.Reminder.CountByAccountID(account.ID)
+	if err != nil {
+		return utils.SendError(session, interaction, "Database Error", "Failed to check your reminder count.")
+	}
+	if reminderCount >= services.MaxRemindersPerAccount {
+		return utils.SendError(session, interaction, "Reminder Limit Reached",
+			fmt.Sprintf("You have reached the maximum of %d reminders. Please delete some before creating new ones.", services.MaxRemindersPerAccount))
 	}
 
 	// Create the reminder with UTC time

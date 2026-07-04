@@ -43,6 +43,7 @@ import {
   parseDateStrLocal,
   zonedTimeToUtc,
 } from "@/lib/timezone";
+import { MAX_DFM_ITEMS_PER_NOTE } from "@/lib/limits";
 
 const RECURRENCE_OPTIONS = [
   "DAILY",
@@ -204,18 +205,33 @@ export function DontForgetMePage() {
     const content = newItemContent.trim();
     if (!content) return;
 
-    setIsAddingItem(true);
-    const item = await dfmService.addItem(content);
-    setIsAddingItem(false);
+    if ((note?.items.length ?? 0) >= MAX_DFM_ITEMS_PER_NOTE) {
+      toast.error(t("dfm.itemLimitReachedTitle"), {
+        description: t("dfm.itemLimitReachedDesc", {
+          max: MAX_DFM_ITEMS_PER_NOTE,
+        }),
+      });
+      return;
+    }
 
-    if (item) {
-      setNewItemContent("");
-      setNote((prev) =>
-        prev ? { ...prev, items: [...prev.items, item] } : prev,
-      );
-      toast.success(t("dfm.itemAdded"));
-    } else {
-      toast.error(t("dfm.itemAddFailed"));
+    setIsAddingItem(true);
+    try {
+      const item = await dfmService.addItem(content);
+      if (item) {
+        setNewItemContent("");
+        setNote((prev) =>
+          prev ? { ...prev, items: [...prev.items, item] } : prev,
+        );
+        toast.success(t("dfm.itemAdded"));
+      } else {
+        toast.error(t("dfm.itemAddFailed"));
+      }
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : t("dfm.itemAddFailed");
+      toast.error(errorMessage);
+    } finally {
+      setIsAddingItem(false);
     }
   };
 
@@ -327,6 +343,8 @@ export function DontForgetMePage() {
   };
 
   const checkedCount = note?.items.filter((i) => i.checked).length ?? 0;
+  const itemLimitReached =
+    (note?.items.length ?? 0) >= MAX_DFM_ITEMS_PER_NOTE;
 
   const nextDeliveryPreview = computeNextDelivery(
     reminderDate,
@@ -385,16 +403,28 @@ export function DontForgetMePage() {
                       }}
                       placeholder={t("dfm.addItemPlaceholder")}
                       maxLength={500}
+                      disabled={itemLimitReached}
                     />
                     <Button
                       onClick={handleAddItem}
-                      disabled={isAddingItem || !newItemContent.trim()}
+                      disabled={
+                        isAddingItem ||
+                        !newItemContent.trim() ||
+                        itemLimitReached
+                      }
                       className="bg-accent hover:bg-accent/90 text-accent-foreground gap-2"
                     >
                       <Plus className="w-4 h-4" />
                       {t("dfm.addItem")}
                     </Button>
                   </div>
+                  {itemLimitReached && (
+                    <p className="text-xs text-red-500">
+                      {t("dfm.itemLimitReachedDesc", {
+                        max: MAX_DFM_ITEMS_PER_NOTE,
+                      })}
+                    </p>
+                  )}
 
                   {/* Items list */}
                   {note && note.items.length === 0 ? (

@@ -3,6 +3,7 @@ package com.chronos.reminder.reminders.ui.create
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chronos.reminder.account.data.AccountRepository
+import com.chronos.reminder.core.MAX_REMINDERS_PER_ACCOUNT
 import com.chronos.reminder.core.network.ApiResult
 import com.chronos.reminder.core.storage.DestinationPreferencesStore
 import com.chronos.reminder.reminders.data.ChannelDto
@@ -18,6 +19,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -45,6 +47,7 @@ data class CreateReminderUiState(
     val loadingGuilds: Boolean = false,
     val loadingChannels: Boolean = false,
     val userTimezone: String = java.util.TimeZone.getDefault().id,
+    val reminderLimitReached: Boolean = false,
 )
 
 @HiltViewModel
@@ -118,6 +121,11 @@ class CreateReminderViewModel @Inject constructor(
             }
             if (preSelected.isNotEmpty()) {
                 updateForm { it.copy(destinations = preSelected) }
+            }
+
+            val currentReminderCount = remindersRepository.getReminders().first().size
+            _uiState.update {
+                it.copy(reminderLimitReached = currentReminderCount >= MAX_REMINDERS_PER_ACCOUNT)
             }
         }
     }
@@ -217,6 +225,12 @@ class CreateReminderViewModel @Inject constructor(
     fun submit() {
         val state = _uiState.value
         if (state.form.destinations.isEmpty() || state.submitting) return
+        if (state.reminderLimitReached) {
+            _uiState.update {
+                it.copy(error = "You have reached the maximum of $MAX_REMINDERS_PER_ACCOUNT reminders")
+            }
+            return
+        }
         viewModelScope.launch {
             _uiState.update { it.copy(submitting = true, error = null) }
             when (val result = remindersRepository.createReminder(state.form.toRequest())) {

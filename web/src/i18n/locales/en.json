@@ -199,6 +199,10 @@
     "workdays": "Workdays",
     "weekend": "Weekend"
   },
+  "reminderLimit": {
+    "reachedTitle": "Reminder limit reached",
+    "reachedDesc": "You've reached the maximum of {{max}} reminders. Delete some before creating new ones."
+  },
   "reminderCreation": {
     "title": "Create a Reminder",
     "step": "Step {{current}} of {{total}}",
@@ -431,6 +435,12 @@
     "connected": "Connected",
     "notConnected": "Not Connected",
     "connectDiscord": "Connect Discord",
+    "discordSendImage": "Send reminder image",
+    "discordSendImageDesc": "Include a generated image with your Discord reminders, in addition to the text",
+    "discordImagePrefUpdated": "Preference updated",
+    "discordImagePrefUpdateFailed": "Failed to update preference",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
     "addApp": {
       "button": "Add login",
       "cancel": "Cancel",
@@ -857,6 +867,8 @@
     "cancelEdit": "Cancel edit",
     "itemAdded": "Item added to your note",
     "itemAddFailed": "Failed to add the item",
+    "itemLimitReachedTitle": "Item limit reached",
+    "itemLimitReachedDesc": "You've reached the maximum of {{max}} items. Remove some before adding new ones.",
     "itemUpdated": "Item updated",
     "itemUpdateFailed": "Failed to update the item",
     "itemDeleted": "Item removed from your note",

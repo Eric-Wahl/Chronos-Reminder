@@ -64,6 +64,9 @@ class AccountViewModel @Inject constructor(
     fun updateTimezone(iana: String, successMessage: String) =
         runOp(successMessage) { repository.updateTimezone(iana) }
 
+    fun updateDiscordSendImagePreference(enabled: Boolean, successMessage: String) =
+        runOp(successMessage) { repository.updateDiscordSendImagePreference(enabled) }
+
     fun updateUsername(username: String, successMessage: String) =
         runOp(successMessage) { repository.updateUsername(username.trim()) }
 
