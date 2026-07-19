@@ -11,7 +11,7 @@
 #   .github/workflows/build-web-container.yml  (Docker image tag)
 
 version: "1.2.7"
-android_version_code: 8
+android_version_code: 9
 
 urls:
   web_app: "https://chronosrmd.com"

@@ -34,7 +34,7 @@ android {
         applicationId = "com.chronos.reminder"
         minSdk = 31
         targetSdk = 35
-        versionCode = 8
+        versionCode = 9
         versionName = "1.2.7"
 
         testInstrumentationRunner = "com.chronos.reminder.HiltTestRunner"
