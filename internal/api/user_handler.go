@@ -604,19 +604,24 @@ func (h *UserHandler) AddAppIdentity(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Reject if this account already has email/password credentials.
-	if account.Email != nil {
+	// Reject if this account already has a password set. Checking Email
+	// alone isn't enough: an account can have Email populated (e.g. copied
+	// from Discord) without ever having a usable password, which would
+	// otherwise lock the user out of ever setting one.
+	if account.HasPassword() {
 		WriteError(w, http.StatusConflict, "This account already has email/password login")
 		return
 	}
 
-	// Reject if the email is already used by another account.
+	// Reject if the email is already used by another account (but allow
+	// re-submitting the account's own existing email, in case one was set
+	// without a password).
 	existing, err := h.accountRepo.GetByEmail(req.Email)
 	if err != nil {
 		WriteError(w, http.StatusInternalServerError, "Failed to check email availability")
 		return
 	}
-	if existing != nil {
+	if existing != nil && existing.ID != accountID {
 		WriteError(w, http.StatusConflict, "This email is already in use")
 		return
 	}

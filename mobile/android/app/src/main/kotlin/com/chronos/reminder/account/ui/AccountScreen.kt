@@ -112,7 +112,8 @@ fun AccountScreen(
     val discordImagePrefUpdated = stringResource(R.string.discord_image_pref_updated)
     val discordSnoozePrefUpdated = stringResource(R.string.discord_snooze_pref_updated)
 
-    val hasAppCredentials = account?.email != null
+    // Email alone doesn't imply a password is set (e.g. copied over from Discord).
+    val hasAppCredentials = account?.hasPassword == true
     val discordIdentity = account?.identities?.firstOrNull { it.provider == "discord" }
     val mobileIdentity = account?.identities?.firstOrNull { it.provider == "mobile" }
 
@@ -124,6 +125,14 @@ fun AccountScreen(
     }
     LaunchedEffect(state.accountDeleted) {
         if (state.accountDeleted) onAccountDeleted()
+    }
+    // Pre-fill the "add login" email if one is already on file but no
+    // password has been set yet (e.g. copied over from Discord).
+    LaunchedEffect(account?.email, account?.hasPassword) {
+        val email = account?.email
+        if (email != null && account?.hasPassword == false && addAppEmail.isBlank()) {
+            addAppEmail = email
+        }
     }
     val discordLinkedMsg = stringResource(R.string.discord_linked)
     LaunchedEffect(pendingDiscordLinkCode) {

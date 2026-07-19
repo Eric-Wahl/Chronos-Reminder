@@ -100,6 +100,11 @@ export function AccountPage() {
         if (accountData) {
           setAccount(accountData);
           setSelectedTimezone(accountData.timezone || "UTC");
+          // Pre-fill the "add login" email if one is already on file but no
+          // password has been set yet (e.g. copied over from Discord).
+          if (accountData.email && !accountData.has_password) {
+            setAddAppEmail(accountData.email);
+          }
         } else {
           setAccountError(t("account.loadingFailed"));
         }
@@ -442,8 +447,10 @@ export function AccountPage() {
     }
   };
 
-  // Account has email/password credentials iff account.email is set
-  const hasAppCredentials = !!(account?.email);
+  // Account has email/password credentials iff a password has actually been
+  // set. Email alone isn't enough: an account can have Email populated
+  // without ever having a usable password (e.g. copied over from Discord).
+  const hasAppCredentials = !!account?.has_password;
   const mobileIdentity = account?.identities?.find(
     (id) => id.provider === "mobile",
   );

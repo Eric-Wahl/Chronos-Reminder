@@ -604,7 +604,8 @@
     "linkExpires": "The link will expire in 24 hours",
     "rememberPassword": "Remember your password?",
     "error": "Failed to send reset link",
-    "backToLogin": "Back to Login"
+    "backToLogin": "Back to Login",
+    "discordHint": "Signed in with Discord? You won't receive a reset email since your account has no password yet — sign in with Discord and add one from Account Settings instead."
   },
   "changelog": {
     "title": "Changelog",

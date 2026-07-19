@@ -45,6 +45,7 @@
     <string name="reset_password_subtitle">Entrez votre e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe.</string>
     <string name="send_reset_link">Envoyer le lien</string>
     <string name="reset_link_sent">Vérifiez votre e-mail pour le lien de réinitialisation</string>
+    <string name="reset_password_discord_hint">Connecté via Discord ? Vous ne recevrez pas d\'e-mail de réinitialisation car votre compte n\'a pas encore de mot de passe — connectez-vous avec Discord et ajoutez-en un depuis les paramètres du compte.</string>
 
     <!-- Bottom navigation -->
     <string name="nav_home">Accueil</string>

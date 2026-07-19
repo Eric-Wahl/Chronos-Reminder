@@ -45,6 +45,7 @@
     <string name="reset_password_subtitle">Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.</string>
     <string name="send_reset_link">Enviar enlace</string>
     <string name="reset_link_sent">Revisa tu correo para el enlace de restablecimiento</string>
+    <string name="reset_password_discord_hint">¿Iniciaste sesión con Discord? No recibirás un correo de restablecimiento porque tu cuenta aún no tiene contraseña — inicia sesión con Discord y agrega una desde la configuración de la cuenta.</string>
 
     <!-- Bottom navigation -->
     <string name="nav_home">Inicio</string>

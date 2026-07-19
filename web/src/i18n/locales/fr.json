@@ -603,7 +603,8 @@
     "linkExpires": "Le lien expirera dans 24 heures",
     "rememberPassword": "Vous vous souvenez de votre mot de passe ?",
     "error": "Erreur lors de l'envoi du lien de réinitialisation",
-    "backToLogin": "Retour à la Connexion"
+    "backToLogin": "Retour à la Connexion",
+    "discordHint": "Connecté via Discord ? Vous ne recevrez pas d'e-mail de réinitialisation car votre compte n'a pas encore de mot de passe — connectez-vous avec Discord et ajoutez-en un depuis les paramètres du compte."
   },
   "changelog": {
     "title": "Changelog",

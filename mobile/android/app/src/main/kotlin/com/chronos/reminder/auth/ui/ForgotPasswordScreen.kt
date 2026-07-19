@@ -88,6 +88,13 @@ fun ForgotPasswordScreen(
                         enabled = email.contains('@'),
                     )
                 }
+
+                Spacer(Modifier.height(24.dp))
+                Text(
+                    text = stringResource(R.string.reset_password_discord_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = ForegroundMuted,
+                )
             }
 
             ErrorBanner(

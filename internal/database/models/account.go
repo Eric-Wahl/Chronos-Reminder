@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -58,6 +59,27 @@ func (a *Account) boolPreference(key string, defaultValue bool) bool {
 		return v
 	}
 	return defaultValue
+}
+
+// HasPassword reports whether the account has email/password credentials set.
+// This must be used instead of checking Email for non-nil: a Discord-linked
+// account can have an Email populated (e.g. copied over from a legacy
+// migration) without ever having a usable password.
+func (a *Account) HasPassword() bool {
+	return a.PasswordHash != nil
+}
+
+// MarshalJSON exposes computed, read-only fields (like has_password)
+// alongside the account's regular fields, without adding real DB columns.
+func (a Account) MarshalJSON() ([]byte, error) {
+	type Alias Account
+	return json.Marshal(struct {
+		Alias
+		HasPassword bool `json:"has_password"`
+	}{
+		Alias:       Alias(a),
+		HasPassword: a.HasPassword(),
+	})
 }
 
 // BeforeCreate hooks for setting timestamps and UUIDs

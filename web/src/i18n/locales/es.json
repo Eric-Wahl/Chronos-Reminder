@@ -604,7 +604,8 @@
     "linkExpires": "El enlace expirará en 24 horas",
     "rememberPassword": "¿Recuerdas tu contraseña?",
     "error": "Error al enviar el enlace de restablecimiento",
-    "backToLogin": "Volver al Inicio de Sesión"
+    "backToLogin": "Volver al Inicio de Sesión",
+    "discordHint": "¿Iniciaste sesión con Discord? No recibirás un correo de restablecimiento porque tu cuenta aún no tiene contraseña — inicia sesión con Discord y agrega una desde la configuración de la cuenta."
   },
   "changelog": {
     "title": "Registro de Cambios",

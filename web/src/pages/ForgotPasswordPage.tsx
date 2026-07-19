@@ -163,6 +163,11 @@ export function ForgotPasswordPage() {
                     {t("common.signIn")}
                   </button>
                 </p>
+
+                {/* Discord-only accounts hint */}
+                <p className="text-center text-muted-foreground text-xs mt-4 border-t border-border pt-4">
+                  {t("forgotPassword.discordHint")}
+                </p>
               </CardContent>
             </Card>
           ) : (

@@ -9,6 +9,10 @@ data class AccountDto(
     val email: String? = null,
     val username: String? = null,
     @SerialName("email_verified") val emailVerified: Boolean = false,
+    // Whether a password has actually been set. Email alone doesn't imply
+    // this: an account can have Email populated (e.g. copied over from
+    // Discord) without ever having a usable password.
+    @SerialName("has_password") val hasPassword: Boolean = false,
     val timezone: TimezoneDto? = null,
     val identities: List<IdentityDto> = emptyList(),
     val preferences: AccountPreferencesDto? = null,

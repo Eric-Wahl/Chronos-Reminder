@@ -47,6 +47,7 @@
     <string name="reset_password_subtitle">Enter your email and we\'ll send you a link to reset your password.</string>
     <string name="send_reset_link">Send Reset Link</string>
     <string name="reset_link_sent">Check your email for a reset link</string>
+    <string name="reset_password_discord_hint">Signed in with Discord? You won\'t receive a reset email since your account has no password yet — sign in with Discord and add one from Account Settings instead.</string>
     <string name="chronos_logo">Chronos logo</string>
     <string name="discord_logo">Discord logo</string>
     <string name="error_discord_not_configured">Discord login is not configured</string>

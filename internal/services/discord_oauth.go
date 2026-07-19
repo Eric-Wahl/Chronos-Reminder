@@ -248,8 +248,11 @@ func (s *DiscordOAuthService) ProcessDiscordAuth(ctx context.Context, userInfo *
 			fmt.Printf("[DISCORD_AUTH] Warning: Failed to update access token: %v\n", err)
 		}
 
-		// If account has no email/password credentials, prompt for setup
-		if account.Email == nil && len(account.Identities) == 1 {
+		// If account has no password set, prompt for setup. Checking Email
+		// alone isn't enough: an account can have Email populated (e.g.
+		// copied over from a legacy migration) without ever having a usable
+		// password, which would otherwise never be re-prompted to fix.
+		if !account.HasPassword() && len(account.Identities) == 1 {
 			return account, "SETUP_REQUIRED", nil
 		}
 

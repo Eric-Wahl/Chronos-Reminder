@@ -133,6 +133,7 @@ export interface Account {
   email: string;
   username: string;
   email_verified: boolean;
+  has_password: boolean;
   timezone: string;
   created_at: string;
   identities?: AccountIdentity[];
