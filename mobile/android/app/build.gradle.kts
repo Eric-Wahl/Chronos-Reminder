@@ -17,7 +17,7 @@ val releaseKeystorePath: String? = System.getenv("KEYSTORE_PATH")
 
 android {
     namespace = "com.chronos.reminder"
-    compileSdk = 35
+    compileSdk = 36
 
     signingConfigs {
         if (releaseKeystorePath != null) {
@@ -33,8 +33,8 @@ android {
     defaultConfig {
         applicationId = "com.chronos.reminder"
         minSdk = 31
-        targetSdk = 35
-        versionCode = 9
+        targetSdk = 36
+        versionCode = 10
         versionName = "1.2.7"
 
         testInstrumentationRunner = "com.chronos.reminder.HiltTestRunner"
