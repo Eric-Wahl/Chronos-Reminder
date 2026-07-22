@@ -4,11 +4,11 @@
 export const VERSION = "1.2.7";
 
 export const URLS = {
-  webApp: "https://chronosrmd.com",
-  api: "https://api.chronosrmd.com",
-  docs: "https://docs.chronosrmd.com",
-  status: "https://status.chronosrmd.com/status/chronos",
-  github: "https://github.com/Eric-Wahl/Chronos-Reminder",
+  webApp:        "https://chronosrmd.com",
+  api:           "https://api.chronosrmd.com",
+  docs:          "https://docs.chronosrmd.com",
+  status:        "https://status.chronosrmd.com/status/chronos",
+  github:        "https://github.com/Eric-Wahl/Chronos-Reminder",
   discordInvite: "https://discord.gg/m3MsM922QD",
-  contact: "https://chronosrmd.com/contact",
+  contact:       "https://chronosrmd.com/contact",
 } as const;
