@@ -12,7 +12,7 @@ object AppConstants {
         const val API            = "https://api.chronosrmd.com"
         const val DOCS           = "https://docs.chronosrmd.com"
         const val STATUS         = "https://status.chronosrmd.com/status/chronos"
-        const val GITHUB         = "https://github.com/Eric-Philippe/Chronos-Reminder"
+        const val GITHUB         = "https://github.com/Eric-Wahl/Chronos-Reminder"
         const val DISCORD_INVITE = "https://discord.gg/m3MsM922QD"
         const val CONTACT        = "https://chronosrmd.com/contact"
     }

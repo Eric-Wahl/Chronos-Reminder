@@ -10,7 +10,7 @@ const (
 	URLAPI          = "https://api.chronosrmd.com"
 	URLDocs         = "https://docs.chronosrmd.com"
 	URLStatus       = "https://status.chronosrmd.com/status/chronos"
-	URLGitHub       = "https://github.com/Eric-Philippe/Chronos-Reminder"
+	URLGitHub       = "https://github.com/Eric-Wahl/Chronos-Reminder"
 	URLDiscordInvite = "https://discord.gg/m3MsM922QD"
 	URLContact      = "https://chronosrmd.com/contact"
 

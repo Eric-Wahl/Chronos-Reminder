@@ -387,7 +387,7 @@ export function SelfHostPage() {
                     </h4>
                     <CodeBlock
                       id="backend-image"
-                      code="ghcr.io/eric-philippe/chronos-reminder:1.0.3"
+                      code="ghcr.io/eric-wahl/chronos-reminder:1.0.3"
                     />
                   </div>
 
@@ -401,7 +401,7 @@ export function SelfHostPage() {
   --name chronos-backend \\
   -p 8080:8080 \\
   --env-file .env \\
-  ghcr.io/eric-philippe/chronos-reminder:1.0.3`}
+  ghcr.io/eric-wahl/chronos-reminder:1.0.3`}
                     />
                   </div>
 
@@ -432,7 +432,7 @@ export function SelfHostPage() {
                     </h4>
                     <CodeBlock
                       id="frontend-image"
-                      code="ghcr.io/eric-philippe/chronos-reminder/web:1.0.3"
+                      code="ghcr.io/eric-wahl/chronos-reminder/web:1.0.3"
                     />
                   </div>
 
@@ -448,7 +448,7 @@ export function SelfHostPage() {
   -e VITE_API_URL=http://your-backend-url:8080 \\
   -e VITE_DISCORD_CLIENT_ID=your_discord_client_id \\
   -e VITE_DISCORD_REDIRECT_URI=http://your-domain.com/auth/callback/discord \\
-  ghcr.io/eric-philippe/chronos-reminder/web:1.0.3`}
+  ghcr.io/eric-wahl/chronos-reminder/web:1.0.3`}
                     />
                   </div>
 
@@ -1134,7 +1134,7 @@ services:
     restart: unless-stopped
 
   backend:
-    image: ghcr.io/eric-philippe/chronos-reminder:1.0.3
+    image: ghcr.io/eric-wahl/chronos-reminder:1.0.3
     container_name: chronos-backend
     env_file: .env
     ports:
@@ -1145,7 +1145,7 @@ services:
     restart: unless-stopped
 
   web:
-    image: ghcr.io/eric-philippe/chronos-reminder/web:1.0.3
+    image: ghcr.io/eric-wahl/chronos-reminder/web:1.0.3
     container_name: chronos-web
     environment:
       - VITE_API_URL=http://localhost:8080
@@ -1203,7 +1203,7 @@ volumes:
                   </p>
                   <div className="flex flex-wrap gap-3">
                     <a
-                      href="https://github.com/Eric-Philippe/Chronos-Reminder"
+                      href="https://github.com/Eric-Wahl/Chronos-Reminder"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-background hover:bg-muted border border-border transition-colors"

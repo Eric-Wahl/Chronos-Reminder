@@ -1,4 +1,4 @@
-[![Chronos Reminder](img/Chronos%20Reminder.png)](https://github.com/Eric-Philippe/Chronos-Reminder)
+[![Chronos Reminder](img/Chronos%20Reminder.png)](https://github.com/Eric-Wahl/Chronos-Reminder)
 
 ---
 
@@ -7,7 +7,7 @@
 [![Documentation](https://img.shields.io/badge/Documentation-Docs-orange?labelColor=Red&style=flat&logo=read-the-docs&link=https://docs.chronosrmd.com)](https://docs.chronosrmd.com)
 [![Join Discord](https://img.shields.io/badge/Join%20Discord-Discord-green?labelColor=Blue&style=flat&logo=discord&link=https://discord.gg/m3MsM922QD)](https://discord.gg/m3MsM922QD)
 [![Invite the Bot](https://img.shields.io/badge/Invite%20the%20Bot-on%20Discord-blue?labelColor=Blue&style=flat&logo=discord&link=https://discord.com/oauth2/authorize?client_id=955923021732913254&permissions=2416127056&scope=bot)](https://discord.com/oauth2/authorize?client_id=955923021732913254&permissions=2416127056&scope=bot)
-[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/Eric-Philippe/Chronos-Reminder)
+[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/Eric-Wahl/Chronos-Reminder)
 
 ---
 
@@ -15,7 +15,7 @@
 
 ⌛️ - Go check the live webapp here: [chronosrmd.com](https://chronosrmd.com) !
 
-⏳ - This project is the successor of the previous [Kairos Discord Reminder Bot](https://github.com/Eric-Philippe/Kairos-Bot-Reminder) !
+⏳ - This project is the successor of the previous [Kairos Discord Reminder Bot](https://github.com/Eric-Wahl/Kairos-Bot-Reminder) !
 
 > [!TIP]  
 > This project is still under active development, so expect new features and improvements regularly !
@@ -121,4 +121,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 Thanks to the following people who have contributed to this project:
 
-- Eric-Philippe - [GitHub](https://github.com/Eric-Philippe)
+- Eric-Wahl - [GitHub](https://github.com/Eric-Wahl)

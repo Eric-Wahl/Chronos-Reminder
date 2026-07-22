@@ -18,7 +18,7 @@ urls:
   api: "https://api.chronosrmd.com"
   docs: "https://docs.chronosrmd.com"
   status: "https://status.chronosrmd.com/status/chronos"
-  github: "https://github.com/Eric-Philippe/Chronos-Reminder"
+  github: "https://github.com/Eric-Wahl/Chronos-Reminder"
   discord_invite: "https://discord.gg/m3MsM922QD"
   contact: "https://chronosrmd.com/contact"
 
@@ -27,5 +27,5 @@ email:
   developer: "ericphlpp@proton.me"
 
 docker:
-  api_image: "ghcr.io/eric-philippe/chronos-reminder"
-  web_image: "ghcr.io/eric-philippe/chronos-reminder/web"
+  api_image: "ghcr.io/eric-wahl/chronos-reminder"
+  web_image: "ghcr.io/eric-wahl/chronos-reminder/web"
