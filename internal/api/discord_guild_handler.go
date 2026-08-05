@@ -119,8 +119,12 @@ func (h *DiscordGuildHandler) GetUserGuilds(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
+	// Note: this is about the Discord OAuth token, not the Chronos session,
+	// so it must never be reported as 401 — the frontend's global HTTP
+	// client treats any 401 as "your session expired" and force-logs the
+	// user out of the whole app.
 	if discordIdentity == nil {
-		WriteError(w, http.StatusUnauthorized, "No Discord identity with access token found for this account")
+		WriteError(w, http.StatusConflict, "No Discord identity with access token found for this account. Please reconnect Discord.")
 		return
 	}
 
@@ -129,25 +133,13 @@ func (h *DiscordGuildHandler) GetUserGuilds(w http.ResponseWriter, r *http.Reque
 	// Get guilds from Discord
 	guilds, err := h.discordOAuthService.GetUserGuilds(r.Context(), accessToken)
 
-	// If we get a 401, try to refresh the token
+	// If we get a 401 from Discord, try to refresh the token
 	if err != nil && strings.Contains(err.Error(), "status 401") {
-		if discordIdentity.RefreshToken == nil {
-			WriteError(w, http.StatusUnauthorized, "Discord token expired and no refresh token available")
-			return
-		}
-
-		// Attempt to refresh the token
-		newAccessToken, newRefreshToken, refreshErr := h.discordOAuthService.RefreshDiscordToken(r.Context(), *discordIdentity.RefreshToken)
+		newAccessToken, refreshErr := h.discordOAuthService.RefreshAndPersistDiscordToken(r.Context(), discordIdentity)
 		if refreshErr != nil {
 			fmt.Printf("[GUILD_HANDLER] Error refreshing token: %v\n", refreshErr)
-			WriteError(w, http.StatusUnauthorized, "Failed to refresh Discord token")
+			WriteError(w, http.StatusConflict, "Discord token expired. Please reconnect Discord.")
 			return
-		}
-
-		// Update the identity with new tokens
-		discordIdentity.AccessToken = &newAccessToken
-		if newRefreshToken != "" {
-			discordIdentity.RefreshToken = &newRefreshToken
 		}
 
 		// Retry fetching guilds with new token
@@ -229,8 +221,12 @@ func (h *DiscordGuildHandler) GetGuildChannels(w http.ResponseWriter, r *http.Re
 		}
 	}
 
+	// Note: this is about the Discord OAuth token, not the Chronos session,
+	// so it must never be reported as 401 — the frontend's global HTTP
+	// client treats any 401 as "your session expired" and force-logs the
+	// user out of the whole app.
 	if discordIdentity == nil {
-		WriteError(w, http.StatusUnauthorized, "No Discord identity with access token found for this account")
+		WriteError(w, http.StatusConflict, "No Discord identity with access token found for this account. Please reconnect Discord.")
 		return
 	}
 
@@ -251,26 +247,14 @@ func (h *DiscordGuildHandler) GetGuildChannels(w http.ResponseWriter, r *http.Re
 
 	// Get channels from Discord
 	channels, err := h.discordOAuthService.GetGuildChannels(r.Context(), accessToken, req.GuildID)
-	
-	// If we get a 401, try to refresh the token
-	if err != nil && strings.Contains(err.Error(), "status 401") {
-		if discordIdentity.RefreshToken == nil {
-			WriteError(w, http.StatusUnauthorized, "Discord token expired and no refresh token available")
-			return
-		}
 
-		// Attempt to refresh the token
-		newAccessToken, newRefreshToken, refreshErr := h.discordOAuthService.RefreshDiscordToken(r.Context(), *discordIdentity.RefreshToken)
+	// If we get a 401 from Discord, try to refresh the token
+	if err != nil && strings.Contains(err.Error(), "status 401") {
+		newAccessToken, refreshErr := h.discordOAuthService.RefreshAndPersistDiscordToken(r.Context(), discordIdentity)
 		if refreshErr != nil {
 			fmt.Printf("[GUILD_HANDLER] Error refreshing token: %v\n", refreshErr)
-			WriteError(w, http.StatusUnauthorized, "Failed to refresh Discord token")
+			WriteError(w, http.StatusConflict, "Discord token expired. Please reconnect Discord.")
 			return
-		}
-
-		// Update the identity with new tokens
-		discordIdentity.AccessToken = &newAccessToken
-		if newRefreshToken != "" {
-			discordIdentity.RefreshToken = &newRefreshToken
 		}
 
 		// Retry fetching channels with new token
@@ -351,8 +335,12 @@ func (h *DiscordGuildHandler) GetGuildRoles(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
+	// Note: this is about the Discord OAuth token, not the Chronos session,
+	// so it must never be reported as 401 — the frontend's global HTTP
+	// client treats any 401 as "your session expired" and force-logs the
+	// user out of the whole app.
 	if discordIdentity == nil {
-		WriteError(w, http.StatusUnauthorized, "No Discord identity with access token found for this account")
+		WriteError(w, http.StatusConflict, "No Discord identity with access token found for this account. Please reconnect Discord.")
 		return
 	}
 
@@ -374,25 +362,13 @@ func (h *DiscordGuildHandler) GetGuildRoles(w http.ResponseWriter, r *http.Reque
 	// Get roles from Discord
 	roles, err := h.discordOAuthService.GetGuildRoles(r.Context(), accessToken, req.GuildID)
 
-	// If we get a 401, try to refresh the token
+	// If we get a 401 from Discord, try to refresh the token
 	if err != nil && strings.Contains(err.Error(), "status 401") {
-		if discordIdentity.RefreshToken == nil {
-			WriteError(w, http.StatusUnauthorized, "Discord token expired and no refresh token available")
-			return
-		}
-
-		// Attempt to refresh the token
-		newAccessToken, newRefreshToken, refreshErr := h.discordOAuthService.RefreshDiscordToken(r.Context(), *discordIdentity.RefreshToken)
+		newAccessToken, refreshErr := h.discordOAuthService.RefreshAndPersistDiscordToken(r.Context(), discordIdentity)
 		if refreshErr != nil {
 			fmt.Printf("[GUILD_HANDLER] Error refreshing token: %v\n", refreshErr)
-			WriteError(w, http.StatusUnauthorized, "Failed to refresh Discord token")
+			WriteError(w, http.StatusConflict, "Discord token expired. Please reconnect Discord.")
 			return
-		}
-
-		// Update the identity with new tokens
-		discordIdentity.AccessToken = &newAccessToken
-		if newRefreshToken != "" {
-			discordIdentity.RefreshToken = &newRefreshToken
 		}
 
 		// Retry fetching roles with new token

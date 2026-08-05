@@ -558,6 +558,35 @@ func (s *DiscordOAuthService) RefreshDiscordToken(ctx context.Context, refreshTo
 	return tokenResp.AccessToken, tokenResp.RefreshToken, nil
 }
 
+// RefreshAndPersistDiscordToken refreshes the identity's Discord access token
+// using its refresh token and saves the new tokens to the database, so the
+// next call doesn't have to refresh again with an already-consumed refresh
+// token (Discord rotates refresh tokens on use). Returns the new access
+// token, or an error if there is no refresh token or the refresh call fails.
+func (s *DiscordOAuthService) RefreshAndPersistDiscordToken(ctx context.Context, identity *models.Identity) (string, error) {
+	if identity.RefreshToken == nil {
+		return "", errors.New("no refresh token available")
+	}
+
+	newAccessToken, newRefreshToken, err := s.RefreshDiscordToken(ctx, *identity.RefreshToken)
+	if err != nil {
+		return "", err
+	}
+
+	identity.AccessToken = &newAccessToken
+	if newRefreshToken != "" {
+		identity.RefreshToken = &newRefreshToken
+	}
+
+	if err := s.identityRepo.Update(identity); err != nil {
+		// Non-fatal: the in-memory token is still usable for this request,
+		// but the refresh will have to happen again on the next call.
+		fmt.Printf("[DISCORD_AUTH] Warning: failed to persist refreshed token: %v\n", err)
+	}
+
+	return newAccessToken, nil
+}
+
 // GetUserGuilds retrieves all guilds the user has access to
 func (s *DiscordOAuthService) GetUserGuilds(ctx context.Context, accessToken string) ([]DiscordGuild, error) {
 	req, err := http.NewRequestWithContext(ctx, "GET", "https://discord.com/api/users/@me/guilds", nil)
