@@ -197,13 +197,20 @@ export function DayPlannerPage() {
     if (!activeItemData || !overPeriod) return;
     if (activeItemData.period === overPeriod) return;
 
-    // Moving into a different column: move it there immediately so the
-    // column the pointer is over reflects the drag live.
-    setItems((prev) =>
-      prev.map((i) =>
-        i.id === active.id ? { ...i, period: overPeriod } : i
-      )
-    );
+    // Moving into a different column: move it there immediately (at the end
+    // of that column) so the column the pointer is over reflects the drag
+    // live. handleDragEnd finalizes the exact drop position.
+    setItems((prev) => {
+      const maxPosition = Math.max(
+        0,
+        ...prev.filter((i) => i.period === overPeriod).map((i) => i.position)
+      );
+      return prev.map((i) =>
+        i.id === active.id
+          ? { ...i, period: overPeriod, position: maxPosition + 1 }
+          : i
+      );
+    });
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -233,7 +240,7 @@ export function DayPlannerPage() {
       const reorderedColumn = reorderedColumnIds
         .map((id) => prev.find((i) => i.id === id))
         .filter((i): i is PlannerItem => !!i)
-        .map((i) => ({ ...i, period: overPeriod }));
+        .map((i, index) => ({ ...i, period: overPeriod, position: index }));
 
       const next = [...otherItems, ...reorderedColumn];
       persistOrder(next);

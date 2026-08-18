@@ -4,7 +4,7 @@ package config
 // Run  python scripts/sync-constants.py  after editing constants.yaml.
 
 const (
-	Version = "1.2.8"
+	Version = "1.3.0"
 
 	URLWebApp       = "https://chronosrmd.com"
 	URLAPI          = "https://api.chronosrmd.com"

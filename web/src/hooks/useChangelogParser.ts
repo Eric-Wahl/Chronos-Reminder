@@ -23,6 +23,27 @@ export const useChangelogParser = () => {
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0] - 18/08/2026
+
+### Major additions
+
+- **Day Planner**: a new web & mobile page for planning your day, separate from Reminders and Don't Forget Me — it sends no notifications of its own, it's just a list you consult and clear when you're done.
+  - Two columns, Morning and Afternoon, to organize your day's tasks.
+  - Drag and drop to reorder tasks, or to move them between columns.
+  - Optionally link a task to an existing Don't Forget Me item — checking one checks the other.
+  - Clear your whole plan in one click once your day is done.
+- **Reminder delivery failures are no longer silent**: if the bot can't deliver a reminder (e.g. it's missing a permission in a Discord channel), you now get a DM explaining exactly what went wrong, and the failure is recorded in a new general error log for troubleshooting.
+
+### Minor additions
+
+- Clearer error messages when the bot is missing Discord permissions — \`/remindus\` now explains when it can't see the selected channel and how to fix it (granting "View Channel" is enough; Administrator is not required).
+
+### Fixes
+
+- Fixed reminder and "Don't Forget Me" delivery failures (e.g. missing Discord permissions) sometimes not being recorded anywhere, making them impossible to diagnose after the fact.
+- Fixed the bot incorrectly logging users out of the web/mobile app whenever an unrelated Discord-side permission check failed.
+- Fixed some Discord bot views showing reminder times in UTC instead of the account's configured timezone.
+
 ## [1.2.7] - 04/07/2026
 
 ### Major additions

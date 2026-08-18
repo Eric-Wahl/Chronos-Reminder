@@ -307,13 +307,13 @@ export function Header() {
 
             {/* Static container with enhanced glassmorphism */}
             <div
-              className="border border-black/10 dark:border-white/5 rounded-xl shadow-2xl 
-              py-6 px-8 flex gap-12 min-w-fit overflow-hidden h-44 pointer-events-auto bg-white/50 dark:bg-black/0"
+              className="border border-black/10 dark:border-white/5 rounded-xl shadow-2xl
+              py-6 px-8 flex gap-12 min-w-fit overflow-hidden h-52 pointer-events-auto bg-white/50 dark:bg-black/0"
             >
               {/* Content wrapper that animates - key added to force re-render */}
               <div
                 key={`content-${activeMenuGroup}`}
-                className={`flex gap-16 animation-${animationDirection}`}
+                className={`flex items-center gap-16 animation-${animationDirection}`}
               >
                 {/* Left column - Menu items */}
                 <div className="flex flex-col gap-1 min-w-max justify-center">

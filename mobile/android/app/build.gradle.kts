@@ -35,7 +35,7 @@ android {
         minSdk = 31
         targetSdk = 36
         versionCode = 10
-        versionName = "1.2.8"
+        versionName = "1.3.0"
 
         testInstrumentationRunner = "com.chronos.reminder.HiltTestRunner"
 
