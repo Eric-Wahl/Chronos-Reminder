@@ -86,6 +86,7 @@ func runMigrations() error {
 		&models.PasswordReset{},
 		&models.DFMNote{},
 		&models.DFMItem{},
+		&models.PlannerItem{},
 		&models.FcmToken{},
 	)
 

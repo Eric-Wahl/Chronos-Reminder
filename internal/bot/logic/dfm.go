@@ -186,6 +186,9 @@ func HandleDFMSetChecked(session *discordgo.Session, interaction *discordgo.Inte
 		return utils.SendError(session, interaction, "Database Error", "Failed to update the item.")
 	}
 
+	// Keep any linked Day Planner items in sync.
+	_ = services.SyncPlannerItemsFromDFMItem(item.ID, item.Checked)
+
 	action := "⬜ Item unchecked"
 	if checked {
 		action = "✅ Item checked"
@@ -330,7 +333,7 @@ func HandleDFMSend(session *discordgo.Session, interaction *discordgo.Interactio
 			remainingTime := cooldownDuration - timeSinceLastSend
 			minutes := int(remainingTime.Minutes())
 			seconds := int(remainingTime.Seconds()) % 60
-			return utils.SendError(session, interaction, "Cooldown Active", 
+			return utils.SendError(session, interaction, "Cooldown Active",
 				fmt.Sprintf("Please wait %d:%02d before sending your note again.", minutes, seconds))
 		}
 	}

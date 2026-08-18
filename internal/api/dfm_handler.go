@@ -194,6 +194,7 @@ func (h *DFMHandler) UpdateItem(w http.ResponseWriter, r *http.Request) {
 		}
 		item.Content = content
 	}
+	checkedChanged := req.Checked != nil && *req.Checked != item.Checked
 	if req.Checked != nil {
 		item.Checked = *req.Checked
 	}
@@ -201,6 +202,11 @@ func (h *DFMHandler) UpdateItem(w http.ResponseWriter, r *http.Request) {
 	if err := h.itemRepo.Update(item); err != nil {
 		WriteError(w, http.StatusInternalServerError, "Failed to update item")
 		return
+	}
+
+	// Keep any linked Day Planner items in sync.
+	if checkedChanged {
+		_ = services.SyncPlannerItemsFromDFMItem(item.ID, item.Checked)
 	}
 
 	WriteJSON(w, http.StatusOK, item)
@@ -374,4 +380,3 @@ func (h *DFMHandler) SendNow(w http.ResponseWriter, r *http.Request) {
 
 	WriteJSON(w, http.StatusOK, map[string]string{"message": "Note sent successfully"})
 }
-

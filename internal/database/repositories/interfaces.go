@@ -119,6 +119,19 @@ type DFMItemRepository interface {
 	DeleteByNoteID(noteID uuid.UUID) error
 }
 
+// PlannerItemRepository interface defines operations for "Day Planner" items
+type PlannerItemRepository interface {
+	Create(item *models.PlannerItem) error
+	CountByAccountID(accountID uuid.UUID) (int64, error)
+	GetByID(id uuid.UUID) (*models.PlannerItem, error)
+	GetByAccountID(accountID uuid.UUID) ([]models.PlannerItem, error)
+	GetByDFMItemID(dfmItemID uuid.UUID) ([]models.PlannerItem, error)
+	Update(item *models.PlannerItem) error
+	Delete(id uuid.UUID) error
+	DeleteByAccountID(accountID uuid.UUID) error
+	Reorder(accountID uuid.UUID, updates []ReorderInput) error
+}
+
 // EmailVerificationRepository interface defines operations for email verification data
 type EmailVerificationRepository interface {
 	Create(verification *models.EmailVerification) error

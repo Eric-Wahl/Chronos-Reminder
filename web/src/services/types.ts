@@ -245,6 +245,23 @@ export interface DFMNote {
 }
 
 /**
+ * Day Planner Types
+ */
+export type PlannerPeriod = "morning" | "afternoon";
+
+export interface PlannerItem {
+  id: string;
+  account_id: string;
+  content: string;
+  checked: boolean;
+  position: number;
+  period: PlannerPeriod;
+  dfm_item_id?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
  * Timezone Types
  */
 export interface Timezone {

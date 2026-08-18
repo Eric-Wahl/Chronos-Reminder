@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
@@ -65,6 +66,7 @@ import com.chronos.reminder.core.ui.theme.ForegroundMain
 import com.chronos.reminder.core.ui.theme.ForegroundMuted
 import com.chronos.reminder.dfm.ui.DfmScreen
 import com.chronos.reminder.home.ui.HomeScreen
+import com.chronos.reminder.planner.ui.PlannerScreen
 import com.chronos.reminder.reminders.ui.create.CreateReminderScreen
 import com.chronos.reminder.reminders.ui.detail.ReminderDetailScreen
 import com.chronos.reminder.reminders.ui.list.RemindersScreen
@@ -79,6 +81,7 @@ private val bottomNavItems = listOf(
     BottomNavItem(Screen.Home, Icons.Default.Home, R.string.nav_home),
     BottomNavItem(Screen.Reminders, Icons.Default.Schedule, R.string.nav_reminders),
     BottomNavItem(Screen.Dfm, Icons.Default.Checklist, R.string.nav_dfm),
+    BottomNavItem(Screen.DayPlanner, Icons.Default.CalendarToday, R.string.nav_day_planner),
     BottomNavItem(Screen.Account, Icons.Default.Person, R.string.nav_account),
 )
 
@@ -341,6 +344,9 @@ fun ChronosNavGraph(
                 }
                 composable<Screen.Dfm> {
                     DfmScreen()
+                }
+                composable<Screen.DayPlanner> {
+                    PlannerScreen()
                 }
                 composable<Screen.Account> {
                     AccountScreen(

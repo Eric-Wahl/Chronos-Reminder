@@ -38,6 +38,9 @@ sealed interface Screen {
     data object Dfm : Screen
 
     @Serializable
+    data object DayPlanner : Screen
+
+    @Serializable
     data object Account : Screen
 
     @Serializable

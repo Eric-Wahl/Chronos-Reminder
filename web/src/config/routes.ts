@@ -76,6 +76,14 @@ export const ROUTES = {
     group: "reminders",
   } as Route,
 
+  DAY_PLANNER: {
+    path: "/day-planner",
+    requiresAuth: true,
+    name: "dayPlanner",
+    submenu: true,
+    group: "reminders",
+  } as Route,
+
   // Resources group
   CHANGELOG: {
     path: "/changelog",
@@ -213,7 +221,12 @@ export const MENU_GROUPS: MenuGroup[] = [
     name: "reminders",
     label: "myReminders",
     requiresAuth: true,
-    items: [ROUTES.REMINDERS, ROUTES.REMINDERS_CREATE, ROUTES.DONT_FORGET_ME],
+    items: [
+      ROUTES.REMINDERS,
+      ROUTES.REMINDERS_CREATE,
+      ROUTES.DONT_FORGET_ME,
+      ROUTES.DAY_PLANNER,
+    ],
   },
   {
     name: "resources",

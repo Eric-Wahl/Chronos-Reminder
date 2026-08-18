@@ -12,6 +12,7 @@ export { identityService } from "./identity";
 export { timezoneService } from "./timezone";
 export { apiKeyService } from "./api-keys";
 export { dfmService } from "./dfm";
+export { plannerService } from "./planner";
 
 // Export all types
 export type {
@@ -38,6 +39,8 @@ export type {
   Timezone,
   DFMNote,
   DFMItem,
+  PlannerItem,
+  PlannerPeriod,
   APIKey,
   CreateAPIKeyResponse,
   ListAPIKeysResponse,

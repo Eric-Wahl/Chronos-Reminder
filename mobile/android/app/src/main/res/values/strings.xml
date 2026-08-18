@@ -57,7 +57,24 @@
     <string name="nav_home">Home</string>
     <string name="nav_reminders">Reminders</string>
     <string name="nav_dfm">Don\'t Forget Me</string>
+    <string name="nav_day_planner">Day Planner</string>
     <string name="nav_account">Account</string>
+
+    <string name="day_planner_title">Day Planner</string>
+    <string name="day_planner_subtitle">Plan your day, check things off as you go, and clear it whenever you\'re done.</string>
+    <string name="day_planner_morning">Morning</string>
+    <string name="day_planner_afternoon">Afternoon</string>
+    <string name="day_planner_add_placeholder">Add a task…</string>
+    <string name="day_planner_add_item">Add item</string>
+    <string name="day_planner_will_link">Will link to this Don\'t Forget Me item</string>
+    <string name="day_planner_empty_column">Nothing planned yet</string>
+    <string name="day_planner_drag_handle">Drag to reorder</string>
+    <string name="day_planner_linked_to_dfm">Linked to Don\'t Forget Me</string>
+    <string name="day_planner_move_period">Move to the other period</string>
+    <string name="day_planner_delete_item">Delete item</string>
+    <string name="day_planner_clear_all">Clear all</string>
+    <string name="day_planner_clear_all_title">Clear your day plan?</string>
+    <string name="day_planner_clear_all_description">This removes every item from your plan. Items linked to Don\'t Forget Me will stay in your note — only the plan itself is erased. This cannot be undone.</string>
 
     <!-- Reminders list -->
     <string name="reminders_title">Reminders</string>

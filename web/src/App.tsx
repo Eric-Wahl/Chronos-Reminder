@@ -11,6 +11,7 @@ import { RemindersPage } from "./pages/RemindersPage";
 import { CreateReminderPage } from "./pages/CreateReminderPage";
 import { ReminderDetailsPage } from "./pages/ReminderDetailsPage";
 import { DontForgetMePage } from "./pages/DontForgetMePage";
+import { DayPlannerPage } from "./pages/DayPlannerPage";
 import { AccountPage } from "./pages/AccountPage";
 import { APIKeysPage } from "./pages/APIKeysPage";
 import { OAuthCallbackPage } from "./pages/OAuthCallbackPage";
@@ -115,6 +116,18 @@ function AppRoutes() {
         element={
           isAuthenticated ? (
             <DontForgetMePage />
+          ) : (
+            <Navigate to={ROUTES.HOME.path} replace />
+          )
+        }
+      />
+
+      {/* Protected route: Day Planner page requires authentication */}
+      <Route
+        path={ROUTES.DAY_PLANNER.path}
+        element={
+          isAuthenticated ? (
+            <DayPlannerPage />
           ) : (
             <Navigate to={ROUTES.HOME.path} replace />
           )

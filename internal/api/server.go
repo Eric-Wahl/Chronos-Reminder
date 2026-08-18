@@ -108,6 +108,9 @@ func NewServer(cfg *config.Config, repos *repositories.Repositories) *Server {
 		repos.Identity,
 	)
 
+	// Initialize Day Planner handler (web/mobile only, no bot surface)
+	plannerHandler := NewPlannerHandler(repos.PlannerItem, repos.DFMItem)
+
 	// Initialize timezone handler
 	timezoneHandler := NewTimezoneHandler(repos.Timezone)
 
@@ -148,6 +151,7 @@ func NewServer(cfg *config.Config, repos *repositories.Repositories) *Server {
 	registerUserRoutes(wrappedMux, userHandler, discordOAuthHandler, sessionService, apiKeyService, rateLimitMiddleware)
 	registerReminderRoutes(wrappedMux, reminderHandler, sessionService, apiKeyService, rateLimitMiddleware)
 	registerDFMRoutes(wrappedMux, dfmHandler, sessionService, apiKeyService, rateLimitMiddleware)
+	registerPlannerRoutes(wrappedMux, plannerHandler, sessionService, apiKeyService, rateLimitMiddleware)
 	registerTimezoneRoutes(wrappedMux, timezoneHandler)
 	registerAPIKeyRoutes(wrappedMux, apiKeyHandler, sessionService, apiKeyService, rateLimitMiddleware)
 	registerFcmRoutes(wrappedMux, fcmHandler, sessionService, apiKeyService, rateLimitMiddleware)
@@ -278,6 +282,23 @@ func registerDFMRoutes(mux *WrappedMux, dfmHandler *DFMHandler, sessionService *
 	mux.Handle("PUT /api/dfm/reminder", chainMiddleware(http.HandlerFunc(dfmHandler.SetReminder)))
 	mux.Handle("DELETE /api/dfm/reminder", chainMiddleware(http.HandlerFunc(dfmHandler.RemoveReminder)))
 	mux.Handle("POST /api/dfm/send", chainMiddleware(http.HandlerFunc(dfmHandler.SendNow)))
+}
+
+// registerPlannerRoutes registers "Day Planner" routes with auth and rate limit middleware
+func registerPlannerRoutes(mux *WrappedMux, plannerHandler *PlannerHandler, sessionService *services.SessionService, apiKeyService *services.APIKeyService, rateLimitMiddleware func(http.Handler) http.Handler) {
+	authMiddleware := AuthMiddleware(sessionService, apiKeyService)
+
+	// Chain middlewares: rate limit -> auth
+	chainMiddleware := func(handler http.Handler) http.Handler {
+		return rateLimitMiddleware(authMiddleware(handler))
+	}
+
+	mux.Handle("GET /api/planner/items", chainMiddleware(http.HandlerFunc(plannerHandler.GetItems)))
+	mux.Handle("POST /api/planner/items", chainMiddleware(http.HandlerFunc(plannerHandler.AddItem)))
+	mux.Handle("PUT /api/planner/items/{id}", chainMiddleware(http.HandlerFunc(plannerHandler.UpdateItem)))
+	mux.Handle("DELETE /api/planner/items/{id}", chainMiddleware(http.HandlerFunc(plannerHandler.DeleteItem)))
+	mux.Handle("PUT /api/planner/reorder", chainMiddleware(http.HandlerFunc(plannerHandler.Reorder)))
+	mux.Handle("DELETE /api/planner/items", chainMiddleware(http.HandlerFunc(plannerHandler.ClearAll)))
 }
 
 // registerTimezoneRoutes registers timezone routes (public, no auth required)

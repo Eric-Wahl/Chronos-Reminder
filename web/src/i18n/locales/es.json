@@ -47,7 +47,8 @@
     "signIn": "Iniciar Sesión",
     "signUp": "Registrarse",
     "account": "Cuenta",
-    "dontForgetMe": "Don't Forget Me"
+    "dontForgetMe": "Don't Forget Me",
+    "dayPlanner": "Day Planner"
   },
   "welcome": {
     "title": "Bienvenido a Chronos",
@@ -856,6 +857,32 @@
     "dataTableRow6Data": "Contenido de recordatorios",
     "dataTableRow6Why": "Entrega de tus recordatorios",
     "dataTableRow6Access": "Tú + desarrollador (solo depuración)"
+  },
+  "dayPlanner": {
+    "title": "Day Planner",
+    "subtitle": "Planifica tu día, marca las tareas a medida que las completas y borra todo cuando termines. Nada aquí es un recordatorio, es solo tu lista.",
+    "loading": "Cargando tu plan...",
+    "morning": "Mañana",
+    "afternoon": "Tarde",
+    "emptyColumn": "Nada planeado todavía",
+    "itemCount": "{{count}} tarea",
+    "itemCount_other": "{{count}} tareas",
+    "addPlaceholder": "Agregar una tarea...",
+    "addItem": "Agregar",
+    "addFailed": "Error al agregar la tarea",
+    "updateFailed": "Error al actualizar la tarea",
+    "deleteFailed": "Error al eliminar la tarea",
+    "reorderFailed": "Error al guardar el nuevo orden",
+    "dragHandle": "Arrastrar para reordenar",
+    "toggleItem": "Alternar tarea",
+    "deleteItem": "Eliminar tarea",
+    "linkedToDFM": "Vinculado a Don't Forget Me",
+    "willLink": "Se vinculará a este elemento de Don't Forget Me",
+    "clearAll": "Borrar todo",
+    "clearAllTitle": "¿Borrar tu plan del día?",
+    "clearAllDescription": "Esto elimina todas las tareas de tu plan. Las tareas vinculadas a Don't Forget Me permanecerán en tu nota — solo se borra el plan. Esta acción no se puede deshacer.",
+    "cleared": "Plan del día borrado",
+    "clearFailed": "Error al borrar el plan"
   },
   "dfm": {
     "title": "Don't Forget Me",

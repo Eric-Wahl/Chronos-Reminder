@@ -47,7 +47,8 @@
     "signIn": "Sign In",
     "signUp": "Sign Up",
     "account": "Account",
-    "dontForgetMe": "Don't Forget Me"
+    "dontForgetMe": "Don't Forget Me",
+    "dayPlanner": "Day Planner"
   },
   "welcome": {
     "title": "Welcome to Chronos",
@@ -856,6 +857,32 @@
     "dataTableRow6Data": "Reminder content",
     "dataTableRow6Why": "Delivering your reminders",
     "dataTableRow6Access": "You + developer (debugging only)"
+  },
+  "dayPlanner": {
+    "title": "Day Planner",
+    "subtitle": "Plan your day, check things off as you go, and clear it whenever you're done. Nothing here is a reminder — it's just your list.",
+    "loading": "Loading your plan...",
+    "morning": "Morning",
+    "afternoon": "Afternoon",
+    "emptyColumn": "Nothing planned yet",
+    "itemCount": "{{count}} item",
+    "itemCount_other": "{{count}} items",
+    "addPlaceholder": "Add a task...",
+    "addItem": "Add item",
+    "addFailed": "Failed to add item",
+    "updateFailed": "Failed to update item",
+    "deleteFailed": "Failed to delete item",
+    "reorderFailed": "Failed to save the new order",
+    "dragHandle": "Drag to reorder",
+    "toggleItem": "Toggle item",
+    "deleteItem": "Delete item",
+    "linkedToDFM": "Linked to Don't Forget Me",
+    "willLink": "Will link to this Don't Forget Me item",
+    "clearAll": "Clear All",
+    "clearAllTitle": "Clear your day plan?",
+    "clearAllDescription": "This removes every item from your plan. Items linked to Don't Forget Me will stay in your note — only the plan itself is erased. This cannot be undone.",
+    "cleared": "Day plan cleared",
+    "clearFailed": "Failed to clear the plan"
   },
   "dfm": {
     "title": "Don't Forget Me",

@@ -47,7 +47,8 @@
     "signIn": "Se Connecter",
     "signUp": "S'Inscrire",
     "account": "Compte",
-    "dontForgetMe": "Don't Forget Me"
+    "dontForgetMe": "Don't Forget Me",
+    "dayPlanner": "Day Planner"
   },
   "welcome": {
     "title": "Bienvenue sur Chronos",
@@ -855,6 +856,32 @@
     "dataTableRow6Data": "Contenu des rappels",
     "dataTableRow6Why": "Livraison de vos rappels",
     "dataTableRow6Access": "Vous + développeur (débogage uniquement)"
+  },
+  "dayPlanner": {
+    "title": "Day Planner",
+    "subtitle": "Planifiez votre journée, cochez les tâches au fur et à mesure, et effacez tout une fois terminé. Rien ici n'est un rappel — c'est juste votre liste.",
+    "loading": "Chargement de votre plan...",
+    "morning": "Matin",
+    "afternoon": "Après-midi",
+    "emptyColumn": "Rien de prévu pour le moment",
+    "itemCount": "{{count}} tâche",
+    "itemCount_other": "{{count}} tâches",
+    "addPlaceholder": "Ajouter une tâche...",
+    "addItem": "Ajouter",
+    "addFailed": "Échec de l'ajout de la tâche",
+    "updateFailed": "Échec de la mise à jour de la tâche",
+    "deleteFailed": "Échec de la suppression de la tâche",
+    "reorderFailed": "Échec de l'enregistrement du nouvel ordre",
+    "dragHandle": "Glisser pour réorganiser",
+    "toggleItem": "Basculer la tâche",
+    "deleteItem": "Supprimer la tâche",
+    "linkedToDFM": "Lié à Don't Forget Me",
+    "willLink": "Sera lié à cet élément de Don't Forget Me",
+    "clearAll": "Tout effacer",
+    "clearAllTitle": "Effacer votre plan de journée ?",
+    "clearAllDescription": "Cela supprime toutes les tâches de votre plan. Les tâches liées à Don't Forget Me resteront dans votre note — seul le plan est effacé. Cette action est irréversible.",
+    "cleared": "Plan de journée effacé",
+    "clearFailed": "Échec de l'effacement du plan"
   },
   "dfm": {
     "title": "Don't Forget Me",

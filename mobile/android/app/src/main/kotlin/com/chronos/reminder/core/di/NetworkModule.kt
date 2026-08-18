@@ -5,6 +5,7 @@ import com.chronos.reminder.auth.data.AuthApi
 import com.chronos.reminder.core.network.ApiClient
 import com.chronos.reminder.dfm.data.DfmApi
 import com.chronos.reminder.notifications.FcmApi
+import com.chronos.reminder.planner.data.PlannerApi
 import com.chronos.reminder.reminders.data.DiscordApi
 import com.chronos.reminder.reminders.data.RemindersApi
 import dagger.Module
@@ -37,6 +38,10 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideDfmApi(apiClient: ApiClient): DfmApi = apiClient.retrofit.create(DfmApi::class.java)
+
+    @Provides
+    @Singleton
+    fun providePlannerApi(apiClient: ApiClient): PlannerApi = apiClient.retrofit.create(PlannerApi::class.java)
 
     @Provides
     @Singleton
