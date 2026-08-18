@@ -5,7 +5,7 @@ package com.chronos.reminder.core
 
 object AppConstants {
 
-    const val VERSION = "1.2.7"
+    const val VERSION = "1.2.8"
 
     object Urls {
         const val WEB_APP        = "https://chronosrmd.com"
