@@ -134,14 +134,25 @@ func remindUsHandler(session *discordgo.Session, interaction *discordgo.Interact
 	roleCache, err := getGuildRolesCache(session, interaction.GuildID)
 	if err != nil {
 		return utils.SendErrorDeferred(session, interaction, "Permission Check Failed", 
-			"Could not verify your permissions for the selected channel.", nil, true)
+			"Could not verify your permissions for the selected channel (Bot Side).", nil, true)
 	}
 
 	// Verify the user has manage channel permissions, administrator permissions, or is the server owner
 	channelPerms, err := session.UserChannelPermissions(userID, channelID)
 	if err != nil {
-		return utils.SendErrorDeferred(session, interaction, "Permission Check Failed", 
-			"Could not verify your permissions for the selected channel.", nil, true)
+		// UserChannelPermissions fetches the channel from Discord under the
+		// hood, which requires the BOT itself to have "View Channel" access
+		// there. That's overwhelmingly the actual cause of this failing (a
+		// private/restricted channel the bot's role can't see) — check for
+		// it directly so we can say so, instead of a vague catch-all that
+		// tends to get "fixed" by granting the bot full Administrator.
+		if _, channelErr := session.Channel(channelID); channelErr != nil {
+			return utils.SendErrorDeferred(session, interaction, "Bot Missing Access",
+				"I can't see that channel, so I can't verify your permissions there. Please grant me the **View Channel** permission for that channel (or its category), then try again — you don't need to give me Administrator for this.", nil, true)
+		}
+
+		return utils.SendErrorDeferred(session, interaction, "Permission Check Failed",
+			"Could not verify your permissions for the selected channel. Please try again in a moment, or contact support if this keeps happening.", nil, true)
 	}
 
 	userPerms := interaction.Member.Permissions

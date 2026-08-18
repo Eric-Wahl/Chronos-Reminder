@@ -82,7 +82,7 @@ func BuildSuccessEmbed(session *discordgo.Session, title, description string, fo
 
 	if footerText != nil {
 		embed.Footer = &discordgo.MessageEmbedFooter{
-			Text:    *footerText,
+			Text: *footerText,
 		}
 	}
 
@@ -100,7 +100,7 @@ func SendSuccess(session *discordgo.Session, interaction *discordgo.InteractionC
 		},
 	})
 }
-		
+
 // BuildErrorEmbed builds an error embed message
 func BuildErrorEmbed(session *discordgo.Session, title, description string, footerText *string) *discordgo.MessageEmbed {
 	embed := &discordgo.MessageEmbed{
@@ -115,7 +115,7 @@ func BuildErrorEmbed(session *discordgo.Session, title, description string, foot
 
 	if footerText != nil {
 		embed.Footer = &discordgo.MessageEmbedFooter{
-			Text:    *footerText,
+			Text: *footerText,
 		}
 	}
 
@@ -129,6 +129,8 @@ func SendError(session *discordgo.Session, interaction *discordgo.InteractionCre
 
 // SendErrorDeferred sends an error message as an interaction response with deferred support
 func SendErrorDeferred(session *discordgo.Session, interaction *discordgo.InteractionCreate, title, description string, footerText *string, deferred bool) error {
+	LogBotError(interaction, sourceFromInteraction(interaction), title, description)
+
 	embed := BuildErrorEmbed(session, title, description, footerText)
 
 	if deferred {
@@ -155,6 +157,8 @@ func SendErrorDetailed(session *discordgo.Session, interaction *discordgo.Intera
 
 // SendErrorDetailedDeferred sends detailed error with deferred support
 func SendErrorDetailedDeferred(session *discordgo.Session, interaction *discordgo.InteractionCreate, title, description string, footerText *string, deferred bool) error {
+	LogBotError(interaction, sourceFromInteraction(interaction), title, description)
+
 	embed := BuildErrorEmbed(session, title, description, footerText)
 
 	if deferred {

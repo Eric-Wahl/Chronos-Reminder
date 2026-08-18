@@ -49,7 +49,10 @@ func (d *DiscordChannelDispatcher) Dispatch(reminder *models.Reminder, destinati
 		}
 	}
 
-	DiscordSend(d.session, reminder, channelIDStr, account, roleMentionID)
+	if err := DiscordSend(d.session, reminder, channelIDStr, account, roleMentionID); err != nil {
+		NotifyChannelDispatchFailure(d.session, account, channelIDStr, err)
+		return fmt.Errorf("failed to send reminder to channel %s: %w", channelIDStr, err)
+	}
 
 	return nil
 }

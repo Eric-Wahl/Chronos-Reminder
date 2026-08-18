@@ -22,12 +22,12 @@ func Initialize() error {
 
 	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
 		os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_USER"), os.Getenv("DB_NAME"), os.Getenv("DB_PASSWORD"))
-	
+
 	// Configure GORM
 	config := &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	}
-	
+
 	// Connect to database
 	DB, err = gorm.Open(postgres.Open(dsn), config)
 	if err != nil {
@@ -54,15 +54,15 @@ func Initialize() error {
 	if err := runMigrations(); err != nil {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
-	
+
 	// Seed initial data
 	if err := seedData(); err != nil {
 		return fmt.Errorf("[DATABASE] - Failed to seed data: %w", err)
 	}
-	
+
 	// Initialize repositories after database connection is established
 	repos = repositories.NewRepositories(DB)
-	
+
 	return nil
 }
 
@@ -72,7 +72,7 @@ func runMigrations() error {
 	if err := createEnumTypes(); err != nil {
 		return err
 	}
-	
+
 	// AutoMigrate will create tables, missing columns and missing indexes
 	err := DB.AutoMigrate(
 		&models.Timezone{},
@@ -81,17 +81,18 @@ func runMigrations() error {
 		&models.Reminder{},
 		&models.ReminderDestination{},
 		&models.ReminderError{},
+		&models.BotError{},
 		&models.EmailVerification{},
 		&models.PasswordReset{},
 		&models.DFMNote{},
 		&models.DFMItem{},
 		&models.FcmToken{},
 	)
-	
+
 	if err != nil {
 		return err
 	}
-	
+
 	// Create unique constraint for provider + external_id combination
 	if err := DB.Exec(`
 		CREATE UNIQUE INDEX IF NOT EXISTS idx_identities_provider_external_id
@@ -131,19 +132,19 @@ func seedData() error {
 	// Check if UTC timezone already exists
 	var utcTimezone models.Timezone
 	result := DB.Where("iana_location = ?", "UTC").First(&utcTimezone)
-	
+
 	// If UTC doesn't exist, we need to seed all timezones
 	if result.Error == gorm.ErrRecordNotFound {
 		// Check if we have any timezones at all
 		var count int64
 		DB.Model(&models.Timezone{}).Count(&count)
-		
+
 		// If we have timezones but no UTC, something is wrong - clear and reseed
 		if count > 0 {
 			log.Println("[DATABASE] - ⚠️ Timezones exist but UTC not found, reseeding...")
 			DB.Exec("DELETE FROM timezones")
 		}
-			
+
 		timezones := []models.Timezone{
 			{ID: 1, Name: "UTC (Coordinated Universal Time)", GMTOffset: 0.0, IANALocation: "UTC"},
 			{ID: 2, Name: "International Date Line West", GMTOffset: -12.0, IANALocation: "Pacific/Kwajalein"},
@@ -179,14 +180,14 @@ func seedData() error {
 			{ID: 32, Name: "Magadan, Solomon Islands, New Caledonia", GMTOffset: 11.0, IANALocation: "Pacific/Guadalcanal"},
 			{ID: 33, Name: "Auckland, Wellington, Fiji, Kamchatka", GMTOffset: 12.0, IANALocation: "Pacific/Auckland"},
 		}
-		
+
 		if err := DB.Create(&timezones).Error; err != nil {
 			return err
 		}
-		
+
 		log.Printf("[DATABASE] - ✅ Seeded %d timezones", len(timezones))
 	}
-	
+
 	return nil
 }
 

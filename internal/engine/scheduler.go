@@ -2,6 +2,7 @@ package engine
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -190,6 +191,7 @@ func (s *Scheduler) scheduleNext() {
 	nextReminders, err := s.reminderRepo.GetNextReminders()
 	if err != nil {
 		log.Printf("[ENGINE] - Error fetching next reminders: %v", err)
+		services.LogBotError("engine:scheduler", "Failed to fetch next reminders", err.Error(), nil)
 		// Set fallback timer to retry later
 		log.Printf("[ENGINE] - Setting fallback poll timer (%v) due to error", fallbackPollInterval)
 		s.currentTimer = time.NewTimer(fallbackPollInterval)
@@ -237,6 +239,7 @@ func (s *Scheduler) checkAndProcessReminders() {
 	nextReminders, err := s.reminderRepo.GetNextReminders()
 	if err != nil {
 		log.Printf("[ENGINE] - Error fetching next reminders: %v", err)
+		services.LogBotError("engine:scheduler", "Failed to fetch next reminders", err.Error(), nil)
 		return
 	}
 
@@ -313,6 +316,7 @@ func (s *Scheduler) processReminder(reminder *models.Reminder) {
 		err = s.reminderRepo.Update(reminder, false)
 		if err != nil {
 			log.Printf("[ENGINE] - Error updating reminder %s after snooze dispatch: %v", reminder.ID, err)
+			services.LogBotError("engine:scheduler", "Failed to update reminder after snooze dispatch", fmt.Sprintf("reminder %s: %v", reminder.ID, err), nil)
 		}
 
 		// If it's a one-time reminder from snooze, add to garbage collector
@@ -329,7 +333,10 @@ func (s *Scheduler) processReminder(reminder *models.Reminder) {
 	} else {
 		// One-time reminder dispatched, add to garbage collector queue
 		reminder.NextFireUTC = nil
-		s.reminderRepo.Update(reminder, false)
+		if err := s.reminderRepo.Update(reminder, false); err != nil {
+			log.Printf("[ENGINE] - Error clearing next_fire_utc for reminder %s: %v", reminder.ID, err)
+			services.LogBotError("engine:scheduler", "Failed to clear next_fire_utc after dispatch", fmt.Sprintf("reminder %s: %v", reminder.ID, err), nil)
+		}
 
 		if s.garbageCollector != nil {
 			s.garbageCollector.NotifyReminderDispatched(reminder.ID)
@@ -352,6 +359,9 @@ func (s *Scheduler) handleRecurrence(reminder *models.Reminder) {
 	newTime, err := services.GetNextOccurrence(reminder.RemindAtUTC, int(reminder.Recurrence), ianaLocation)
 	if err != nil {
 		log.Printf("[ENGINE] - Error getting next occurrence for reminder %s: %v", reminder.ID, err)
+		// Critical: if this fails, the recurring reminder never gets
+		// rescheduled and silently stops firing forever with no other trace.
+		services.LogBotError("engine:scheduler", "Failed to compute next occurrence — recurring reminder will stop firing", fmt.Sprintf("reminder %s: %v", reminder.ID, err), nil)
 		return
 	}
 
@@ -359,6 +369,8 @@ func (s *Scheduler) handleRecurrence(reminder *models.Reminder) {
 	err = s.reminderRepo.RescheduleReminder(reminder, newTime, false)
 	if err != nil {
 		log.Printf("[ENGINE] - Error rescheduling recurring reminder %s: %v", reminder.ID, err)
+		// Critical: same as above — the reminder will not fire again.
+		services.LogBotError("engine:scheduler", "Failed to reschedule recurring reminder — it will stop firing", fmt.Sprintf("reminder %s: %v", reminder.ID, err), nil)
 	}
 }
 

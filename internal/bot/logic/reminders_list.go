@@ -41,9 +41,13 @@ func HandleListReminders(session *discordgo.Session, interaction *discordgo.Inte
 		})
 	}
 
-	// Convert to pointer slice for buildRemindersListEmbed
+	// Convert to pointer slice for buildRemindersListEmbed. GetByAccountIDWithDestinations
+	// doesn't preload Account, so attach the already-loaded account (these are
+	// all its own reminders) — otherwise the embed can't convert times to the
+	// user's timezone and silently omits them.
 	remindersPointers := make([]*models.Reminder, len(reminders))
 	for i := range reminders {
+		reminders[i].Account = account
 		remindersPointers[i] = &reminders[i]
 	}
 
@@ -167,6 +171,10 @@ func HandleShowReminderFromList(session *discordgo.Session, interaction *discord
 		return utils.SendError(session, interaction, "Permission Denied", "You don't have permission to access this reminder.")
 	}
 
+	// GetByAccountIDWithDestinations doesn't preload Account, so attach the
+	// already-loaded account so the embed can convert to the user's timezone.
+	currentReminder.Account = account
+
 	// Build the reminder embed
 	embed := BuildReminderEmbed(session, currentReminder)
 
@@ -248,9 +256,11 @@ func HandleBackToList(session *discordgo.Session, interaction *discordgo.Interac
 		})
 	}
 
-	// Convert to pointer slice for buildRemindersListEmbed
+	// Convert to pointer slice for buildRemindersListEmbed. GetByAccountIDWithDestinations
+	// doesn't preload Account, so attach the already-loaded account.
 	remindersPointers := make([]*models.Reminder, len(reminders))
 	for i := range reminders {
+		reminders[i].Account = account
 		remindersPointers[i] = &reminders[i]
 	}
 

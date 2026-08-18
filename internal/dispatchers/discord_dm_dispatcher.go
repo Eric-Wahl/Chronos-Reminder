@@ -49,7 +49,9 @@ func (d *DiscordDMDispatcher) Dispatch(reminder *models.Reminder, destination *m
 		return fmt.Errorf("failed to create DM channel with user %s: %w", userIDStr, err)
 	}
 
-	DiscordSend(d.session, reminder, dmChannel.ID, account)
+	if err := DiscordSend(d.session, reminder, dmChannel.ID, account); err != nil {
+		return fmt.Errorf("failed to send reminder DM to user %s: %w", userIDStr, err)
+	}
 
 	return nil
 }

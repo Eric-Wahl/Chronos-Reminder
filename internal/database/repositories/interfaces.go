@@ -87,6 +87,16 @@ type ReminderErrorRepository interface {
 	MarkMultipleAsFixed(ids []uuid.UUID) error
 }
 
+// BotErrorRepository interface defines operations for the general bot error log
+type BotErrorRepository interface {
+	Create(botError *models.BotError) error
+	GetByID(id uuid.UUID) (*models.BotError, error)
+	GetRecent(limit int) ([]models.BotError, error)
+	GetUnresolved() ([]models.BotError, error)
+	GetByAccountID(accountID uuid.UUID) ([]models.BotError, error)
+	MarkResolved(id uuid.UUID) error
+}
+
 // DFMNoteRepository interface defines operations for "Don't Forget Me" notes
 type DFMNoteRepository interface {
 	GetOrCreateByAccountID(accountID uuid.UUID) (*models.DFMNote, error)

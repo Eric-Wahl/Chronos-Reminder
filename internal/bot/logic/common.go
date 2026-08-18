@@ -3,6 +3,7 @@ package logic
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/ericp/chronos-bot-reminder/internal/bot/utils"
@@ -13,8 +14,18 @@ import (
 
 // BuildReminderEmbed creates a detailed embed for a reminder with its destinations
 func BuildReminderEmbed(session *discordgo.Session, reminder *models.Reminder) *discordgo.MessageEmbed {
-	// Format the reminder time
-	remindTimeStr := reminder.RemindAtUTC.Format("Monday, January 2, 2006 at 15:04")
+	// Format the reminder time in the account's timezone. RemindAtUTC is
+	// stored in UTC, so formatting it directly (as this used to do) shows
+	// the wrong wall-clock time to anyone not in UTC.
+	remindTime := reminder.RemindAtUTC
+	tzLabel := "UTC"
+	if reminder.Account != nil && reminder.Account.Timezone != nil {
+		if loc, err := time.LoadLocation(reminder.Account.Timezone.IANALocation); err == nil {
+			remindTime = remindTime.In(loc)
+			tzLabel = reminder.Account.Timezone.IANALocation
+		}
+	}
+	remindTimeStr := fmt.Sprintf("%s (%s)", remindTime.Format("Monday, January 2, 2006 at 15:04"), tzLabel)
 
 	// Determine status
 	status := "✅ Active"

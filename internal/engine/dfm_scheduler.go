@@ -123,6 +123,7 @@ func (s *DFMScheduler) processDueNotes() {
 	notes, err := s.noteRepo.GetDueNotes(now)
 	if err != nil {
 		log.Printf("[ENGINE] - Error fetching due DFM notes: %v", err)
+		services.LogBotError("engine:dfm_scheduler", "Failed to fetch due DFM notes", err.Error(), nil)
 		return
 	}
 
@@ -158,11 +159,13 @@ func (s *DFMScheduler) processNote(note *models.DFMNote) {
 	discordID, email, err := s.resolveDeliveryAddresses(note.AccountID)
 	if err != nil {
 		log.Printf("[ENGINE] - Error fetching delivery addresses for DFM note %s: %v", note.ID, err)
+		services.LogBotError("engine:dfm_scheduler", "Failed to fetch delivery addresses for DFM note", fmt.Sprintf("note %s: %v", note.ID, err), nil)
 		return
 	}
 
 	if err := s.dispatcher.Dispatch(note, discordID, email); err != nil {
 		log.Printf("[ENGINE] - Error dispatching DFM note %s: %v", note.ID, err)
+		services.LogBotError("engine:dfm_scheduler", "Failed to dispatch DFM note", fmt.Sprintf("note %s: %v", note.ID, err), nil)
 	} else if config.IsDebugMode() {
 		log.Printf("[ENGINE] - DFM note %s dispatched", note.ID)
 	}
@@ -192,6 +195,9 @@ func (s *DFMScheduler) rescheduleNote(note *models.DFMNote) {
 		nextTime, err := services.GetNextOccurrence(*note.RemindAtUTC, int(note.Recurrence), ianaLocation)
 		if err != nil {
 			log.Printf("[ENGINE] - Error computing next occurrence for DFM note %s: %v", note.ID, err)
+			// Critical: if this fails, the recurring DFM note never gets
+			// rescheduled and silently stops firing forever with no other trace.
+			services.LogBotError("engine:dfm_scheduler", "Failed to compute next occurrence — recurring DFM note will stop firing", fmt.Sprintf("note %s: %v", note.ID, err), nil)
 			return
 		}
 
@@ -202,5 +208,7 @@ func (s *DFMScheduler) rescheduleNote(note *models.DFMNote) {
 
 	if err := s.noteRepo.Update(note); err != nil {
 		log.Printf("[ENGINE] - Error rescheduling DFM note %s: %v", note.ID, err)
+		// Critical: same as above — the note will not fire again.
+		services.LogBotError("engine:dfm_scheduler", "Failed to reschedule DFM note — it will stop firing", fmt.Sprintf("note %s: %v", note.ID, err), nil)
 	}
 }

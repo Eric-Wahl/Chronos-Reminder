@@ -163,6 +163,7 @@ func (r *reminderRepository) GetNextReminders() ([]models.Reminder, error) {
 	
 	dbResult := r.db.Preload("Account").
 		Preload("Account.Timezone").
+		Preload("Account.Identities").
 		Preload("Destinations").
 		Where(`
 			(

@@ -105,3 +105,41 @@ func DiscordSend(session *discordgo.Session, reminder *models.Reminder, channelI
 
 	return nil
 }
+
+// NotifyChannelDispatchFailure best-effort DMs the reminder's owner when a
+// channel-destination reminder fails to send (e.g. the bot lacks permission
+// to post in that channel), so they have a chance to fix it instead of
+// silently missing reminders. Failures here (e.g. the user has DMs closed)
+// are swallowed — this is a courtesy notification, not the primary error
+// reporting path (that's the reminder_errors record created by the caller).
+func NotifyChannelDispatchFailure(session *discordgo.Session, account *models.Account, channelID string, dispatchErr error) {
+	discordUserID := discordIDFromAccount(account)
+	if discordUserID == "" {
+		return
+	}
+
+	dmChannel, err := session.UserChannelCreate(discordUserID)
+	if err != nil {
+		return
+	}
+
+	embed := &discordgo.MessageEmbed{
+		Title: "⚠️ Reminder delivery failed",
+		Description: fmt.Sprintf(
+			"I couldn't deliver your reminder to <#%s>.\n\n**Reason:** %s\n\nMake sure I have permission to send messages in that channel, or update the reminder's destination.",
+			channelID, dispatchErr.Error(),
+		),
+		Color: 0xE74C3C,
+	}
+	_, _ = session.ChannelMessageSendEmbed(dmChannel.ID, embed)
+}
+
+// discordIDFromAccount returns the account's linked Discord user ID, or "" if none.
+func discordIDFromAccount(account *models.Account) string {
+	for _, identity := range account.Identities {
+		if identity.Provider == models.ProviderDiscord {
+			return identity.ExternalID
+		}
+	}
+	return ""
+}
