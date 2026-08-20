@@ -50,7 +50,7 @@
     <!-- Bottom navigation -->
     <string name="nav_home">Inicio</string>
     <string name="nav_reminders">Recordatorios</string>
-    <string name="nav_dfm">Don\'t Forget Me</string>
+    <string name="nav_dfm">DFM</string>
     <string name="nav_day_planner">Day Planner</string>
     <string name="nav_account">Cuenta</string>
 
@@ -66,9 +66,13 @@
     <string name="day_planner_linked_to_dfm">Vinculado a Don\'t Forget Me</string>
     <string name="day_planner_move_period">Mover al otro período</string>
     <string name="day_planner_delete_item">Eliminar tarea</string>
-    <string name="day_planner_clear_all">Borrar todo</string>
+    <string name="day_planner_clear_all">Borrar plan</string>
     <string name="day_planner_clear_all_title">¿Borrar tu plan del día?</string>
     <string name="day_planner_clear_all_description">Esto elimina todas las tareas de tu plan. Las tareas vinculadas a Don\'t Forget Me permanecerán en tu nota — solo se borra el plan. Esta acción no se puede deshacer.</string>
+    <string name="day_planner_edit_mode">Editar</string>
+    <string name="day_planner_consult_mode">Consultar</string>
+    <string name="day_planner_switch_to_consult">Cambiar a vista de consulta</string>
+    <string name="day_planner_switch_to_edit">Cambiar a vista de edición</string>
 
     <!-- Language -->
     <string name="section_language">Idioma</string>

@@ -1,5 +1,6 @@
 package com.chronos.reminder.planner.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,19 +11,24 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.DarkMode
@@ -46,6 +52,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -67,12 +76,15 @@ import kotlinx.coroutines.launch
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
+private enum class PlannerViewMode { EDIT, CONSULT }
+
 @Composable
 fun PlannerScreen(viewModel: PlannerViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val items by viewModel.items.collectAsStateWithLifecycle()
     val dfmItems by viewModel.dfmItems.collectAsStateWithLifecycle()
     var showClearConfirm by rememberSaveable { mutableStateOf(false) }
+    var viewMode by rememberSaveable { mutableStateOf(PlannerViewMode.EDIT) }
 
     Scaffold(
         containerColor = BackgroundMain,
@@ -81,7 +93,8 @@ fun PlannerScreen(viewModel: PlannerViewModel = hiltViewModel()) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding),
+                .padding(padding)
+                .imePadding(),
         ) {
             Column(
                 modifier = Modifier
@@ -101,42 +114,102 @@ fun PlannerScreen(viewModel: PlannerViewModel = hiltViewModel()) {
                         color = ForegroundMuted,
                         modifier = Modifier.weight(1f),
                     )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    val switchToConsult = viewMode == PlannerViewMode.EDIT
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(AccentOrange.copy(alpha = 0.12f))
+                            .clickable {
+                                viewMode = if (switchToConsult) PlannerViewMode.CONSULT else PlannerViewMode.EDIT
+                            }
+                            .padding(horizontal = 12.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            if (switchToConsult) Icons.Default.Checklist else Icons.Default.Edit,
+                            contentDescription = stringResource(
+                                if (switchToConsult) R.string.day_planner_switch_to_consult else R.string.day_planner_switch_to_edit,
+                            ),
+                            tint = AccentOrange,
+                            modifier = Modifier.width(16.dp),
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            stringResource(if (switchToConsult) R.string.day_planner_consult_mode else R.string.day_planner_edit_mode),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = AccentOrange,
+                        )
+                    }
+
+                    Spacer(Modifier.weight(1f))
+
                     if (items.isNotEmpty()) {
-                        IconButton(onClick = { showClearConfirm = true }) {
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(MaterialTheme.colorScheme.error.copy(alpha = 0.1f))
+                                .clickable { showClearConfirm = true }
+                                .padding(horizontal = 12.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
                             Icon(
-                                Icons.Default.Close,
-                                contentDescription = stringResource(R.string.day_planner_clear_all),
+                                Icons.Default.DeleteSweep,
+                                contentDescription = null,
                                 tint = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.width(16.dp),
+                            )
+                            Spacer(Modifier.width(4.dp))
+                            Text(
+                                stringResource(R.string.day_planner_clear_all),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.error,
                             )
                         }
                     }
                 }
 
-                PlannerPeriodSection(
-                    period = PlannerPeriod.MORNING,
-                    icon = Icons.Default.LightMode,
-                    label = stringResource(R.string.day_planner_morning),
-                    items = items.filter { it.period == PlannerPeriod.MORNING }.sortedBy { it.position },
-                    dfmItems = dfmItems,
-                    onAdd = viewModel::addItem,
-                    onToggle = viewModel::toggleChecked,
-                    onDelete = viewModel::deleteItem,
-                    onMove = { item -> viewModel.movePeriod(item, PlannerPeriod.AFTERNOON) },
-                    onReordered = { ids -> viewModel.reorderWithinPeriod(PlannerPeriod.MORNING, ids) },
-                )
+                if (viewMode == PlannerViewMode.EDIT) {
+                    PlannerPeriodSection(
+                        period = PlannerPeriod.MORNING,
+                        icon = Icons.Default.LightMode,
+                        label = stringResource(R.string.day_planner_morning),
+                        items = items.filter { it.period == PlannerPeriod.MORNING }.sortedBy { it.position },
+                        dfmItems = dfmItems,
+                        onAdd = viewModel::addItem,
+                        onToggle = viewModel::toggleChecked,
+                        onDelete = viewModel::deleteItem,
+                        onMove = { item -> viewModel.movePeriod(item, PlannerPeriod.AFTERNOON) },
+                        onReordered = { ids -> viewModel.reorderWithinPeriod(PlannerPeriod.MORNING, ids) },
+                    )
 
-                PlannerPeriodSection(
-                    period = PlannerPeriod.AFTERNOON,
-                    icon = Icons.Default.DarkMode,
-                    label = stringResource(R.string.day_planner_afternoon),
-                    items = items.filter { it.period == PlannerPeriod.AFTERNOON }.sortedBy { it.position },
-                    dfmItems = dfmItems,
-                    onAdd = viewModel::addItem,
-                    onToggle = viewModel::toggleChecked,
-                    onDelete = viewModel::deleteItem,
-                    onMove = { item -> viewModel.movePeriod(item, PlannerPeriod.MORNING) },
-                    onReordered = { ids -> viewModel.reorderWithinPeriod(PlannerPeriod.AFTERNOON, ids) },
-                )
+                    PlannerPeriodSection(
+                        period = PlannerPeriod.AFTERNOON,
+                        icon = Icons.Default.DarkMode,
+                        label = stringResource(R.string.day_planner_afternoon),
+                        items = items.filter { it.period == PlannerPeriod.AFTERNOON }.sortedBy { it.position },
+                        dfmItems = dfmItems,
+                        onAdd = viewModel::addItem,
+                        onToggle = viewModel::toggleChecked,
+                        onDelete = viewModel::deleteItem,
+                        onMove = { item -> viewModel.movePeriod(item, PlannerPeriod.MORNING) },
+                        onReordered = { ids -> viewModel.reorderWithinPeriod(PlannerPeriod.AFTERNOON, ids) },
+                    )
+                } else {
+                    PlannerConsultSection(
+                        morningItems = items.filter { it.period == PlannerPeriod.MORNING }.sortedBy { it.position },
+                        afternoonItems = items.filter { it.period == PlannerPeriod.AFTERNOON }.sortedBy { it.position },
+                        onToggle = viewModel::toggleChecked,
+                        onMove = viewModel::movePeriod,
+                        onReordered = { period, ids -> viewModel.reorderWithinPeriod(period, ids) },
+                    )
+                }
 
                 Spacer(Modifier.height(24.dp))
             }
@@ -346,6 +419,7 @@ private fun PlannerRow(
     onMove: () -> Unit,
     dragHandleModifier: Modifier,
 ) {
+    val haptic = LocalHapticFeedback.current
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -358,7 +432,10 @@ private fun PlannerRow(
         )
         Checkbox(
             checked = item.checked,
-            onCheckedChange = { onToggle() },
+            onCheckedChange = {
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                onToggle()
+            },
             colors = CheckboxDefaults.colors(checkedColor = AccentOrange),
         )
         if (item.dfmItemId != null) {
@@ -389,6 +466,152 @@ private fun PlannerRow(
             Icon(
                 Icons.Default.Close,
                 contentDescription = stringResource(R.string.day_planner_delete_item),
+                tint = ForegroundMuted,
+            )
+        }
+    }
+}
+
+@Composable
+private fun PlannerConsultSection(
+    morningItems: List<PlannerItem>,
+    afternoonItems: List<PlannerItem>,
+    onToggle: (PlannerItem) -> Unit,
+    onMove: (PlannerItem, PlannerPeriod) -> Unit,
+    onReordered: (PlannerPeriod, List<String>) -> Unit,
+) {
+    ChronosCard(modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp)) {
+            PlannerConsultPeriodBlock(
+                period = PlannerPeriod.MORNING,
+                icon = Icons.Default.LightMode,
+                label = stringResource(R.string.day_planner_morning),
+                items = morningItems,
+                onToggle = onToggle,
+                onMove = { item -> onMove(item, PlannerPeriod.AFTERNOON) },
+                onReordered = { ids -> onReordered(PlannerPeriod.MORNING, ids) },
+            )
+            Spacer(Modifier.height(16.dp))
+            PlannerConsultPeriodBlock(
+                period = PlannerPeriod.AFTERNOON,
+                icon = Icons.Default.DarkMode,
+                label = stringResource(R.string.day_planner_afternoon),
+                items = afternoonItems,
+                onToggle = onToggle,
+                onMove = { item -> onMove(item, PlannerPeriod.MORNING) },
+                onReordered = { ids -> onReordered(PlannerPeriod.AFTERNOON, ids) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun PlannerConsultPeriodBlock(
+    period: PlannerPeriod,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    items: List<PlannerItem>,
+    onToggle: (PlannerItem) -> Unit,
+    onMove: (PlannerItem) -> Unit,
+    onReordered: (List<String>) -> Unit,
+) {
+    val localItems = remember(period) { mutableStateListOf<PlannerItem>() }
+    LaunchedEffect(items) {
+        localItems.clear()
+        localItems.addAll(items)
+    }
+
+    val lazyListState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
+    val reorderableState = rememberReorderableLazyListState(lazyListState) { from, to ->
+        localItems.add(to.index, localItems.removeAt(from.index))
+    }
+
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(icon, contentDescription = null, tint = AccentOrange, modifier = Modifier.width(20.dp))
+        Spacer(Modifier.width(8.dp))
+        Text(label, style = MaterialTheme.typography.titleMedium)
+    }
+    Spacer(Modifier.height(4.dp))
+
+    if (localItems.isEmpty()) {
+        Text(
+            stringResource(R.string.day_planner_empty_column),
+            style = MaterialTheme.typography.bodySmall,
+            color = ForegroundMuted,
+            modifier = Modifier.padding(vertical = 4.dp),
+        )
+    } else {
+        LazyColumn(
+            state = lazyListState,
+            modifier = Modifier.heightIn(max = 400.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            items(localItems, key = { it.id }) { item ->
+                ReorderableItem(reorderableState, key = item.id) { _ ->
+                    PlannerConsultRow(
+                        item = item,
+                        onToggle = { onToggle(item) },
+                        onMove = { onMove(item) },
+                        dragHandleModifier = Modifier.draggableHandle(
+                            onDragStopped = {
+                                scope.launch { onReordered(localItems.map { it.id }) }
+                            },
+                        ),
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PlannerConsultRow(
+    item: PlannerItem,
+    onToggle: () -> Unit,
+    onMove: () -> Unit,
+    dragHandleModifier: Modifier,
+) {
+    val haptic = LocalHapticFeedback.current
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            Icons.Default.DragHandle,
+            contentDescription = stringResource(R.string.day_planner_drag_handle),
+            tint = ForegroundMuted,
+            modifier = dragHandleModifier.width(20.dp),
+        )
+        Checkbox(
+            checked = item.checked,
+            onCheckedChange = {
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                onToggle()
+            },
+            colors = CheckboxDefaults.colors(checkedColor = AccentOrange),
+        )
+        if (item.dfmItemId != null) {
+            Icon(
+                Icons.Default.Link,
+                contentDescription = stringResource(R.string.day_planner_linked_to_dfm),
+                tint = AccentOrange,
+                modifier = Modifier.width(14.dp),
+            )
+            Spacer(Modifier.width(4.dp))
+        }
+        Text(
+            text = item.content,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                textDecoration = if (item.checked) TextDecoration.LineThrough else TextDecoration.None,
+            ),
+            color = if (item.checked) ForegroundMuted else MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.weight(1f).padding(start = 4.dp),
+        )
+        IconButton(onClick = onMove) {
+            Icon(
+                Icons.Default.SwapHoriz,
+                contentDescription = stringResource(R.string.day_planner_move_period),
                 tint = ForegroundMuted,
             )
         }

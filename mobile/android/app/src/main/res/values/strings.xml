@@ -56,7 +56,7 @@
     <!-- Bottom navigation -->
     <string name="nav_home">Home</string>
     <string name="nav_reminders">Reminders</string>
-    <string name="nav_dfm">Don\'t Forget Me</string>
+    <string name="nav_dfm">DFM</string>
     <string name="nav_day_planner">Day Planner</string>
     <string name="nav_account">Account</string>
 
@@ -72,9 +72,13 @@
     <string name="day_planner_linked_to_dfm">Linked to Don\'t Forget Me</string>
     <string name="day_planner_move_period">Move to the other period</string>
     <string name="day_planner_delete_item">Delete item</string>
-    <string name="day_planner_clear_all">Clear all</string>
+    <string name="day_planner_clear_all">Clear plan</string>
     <string name="day_planner_clear_all_title">Clear your day plan?</string>
     <string name="day_planner_clear_all_description">This removes every item from your plan. Items linked to Don\'t Forget Me will stay in your note — only the plan itself is erased. This cannot be undone.</string>
+    <string name="day_planner_edit_mode">Edit</string>
+    <string name="day_planner_consult_mode">Consult</string>
+    <string name="day_planner_switch_to_consult">Switch to consult view</string>
+    <string name="day_planner_switch_to_edit">Switch to edit view</string>
 
     <!-- Reminders list -->
     <string name="reminders_title">Reminders</string>

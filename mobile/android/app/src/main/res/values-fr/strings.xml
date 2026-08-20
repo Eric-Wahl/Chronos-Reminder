@@ -50,7 +50,7 @@
     <!-- Bottom navigation -->
     <string name="nav_home">Accueil</string>
     <string name="nav_reminders">Rappels</string>
-    <string name="nav_dfm">Don\'t Forget Me</string>
+    <string name="nav_dfm">DFM</string>
     <string name="nav_day_planner">Day Planner</string>
     <string name="nav_account">Compte</string>
 
@@ -66,9 +66,13 @@
     <string name="day_planner_linked_to_dfm">Lié à Don\'t Forget Me</string>
     <string name="day_planner_move_period">Déplacer vers l\'autre période</string>
     <string name="day_planner_delete_item">Supprimer la tâche</string>
-    <string name="day_planner_clear_all">Tout effacer</string>
+    <string name="day_planner_clear_all">Effacer le plan</string>
     <string name="day_planner_clear_all_title">Effacer votre plan de journée ?</string>
     <string name="day_planner_clear_all_description">Cela supprime toutes les tâches de votre plan. Les tâches liées à Don\'t Forget Me resteront dans votre note — seul le plan est effacé. Cette action est irréversible.</string>
+    <string name="day_planner_edit_mode">Modifier</string>
+    <string name="day_planner_consult_mode">Consulter</string>
+    <string name="day_planner_switch_to_consult">Passer en vue consultation</string>
+    <string name="day_planner_switch_to_edit">Passer en vue édition</string>
 
     <!-- Language -->
     <string name="section_language">Langue</string>
