@@ -98,6 +98,16 @@ func (r *dfmNoteRepository) GetDueNotes(now time.Time) ([]models.DFMNote, error)
 	return notes, err
 }
 
+// GetNotesWithZombieChannels returns notes with at least one delivery
+// channel that has been failing uninterrupted since before olderThan.
+func (r *dfmNoteRepository) GetNotesWithZombieChannels(olderThan time.Time) ([]models.DFMNote, error) {
+	var notes []models.DFMNote
+	err := r.db.
+		Where("(discord_failing_since IS NOT NULL AND discord_failing_since < ?) OR (email_failing_since IS NOT NULL AND email_failing_since < ?)", olderThan, olderThan).
+		Find(&notes).Error
+	return notes, err
+}
+
 // dfmItemRepository implementation
 type dfmItemRepository struct {
 	db *gorm.DB

@@ -221,6 +221,23 @@ func (r *reminderRepository) GetNextReminders() ([]models.Reminder, error) {
 	return []models.Reminder{}, nil
 }
 
+// GetZombieReminders returns reminders (one-time or recurring) that have had
+// an unresolved delivery error since before olderThan. Once a reminder gets
+// an unresolved reminder_error, the scheduler's due-reminders query excludes
+// it permanently (see GetNextReminders), so without this cleanup a broken
+// recurring reminder would otherwise sit stuck forever.
+func (r *reminderRepository) GetZombieReminders(olderThan time.Time) ([]models.Reminder, error) {
+	var reminders []models.Reminder
+	err := r.db.
+		Where(`id IN (
+			SELECT reminder_id
+			FROM reminder_errors
+			WHERE fixed = false AND timestamp < ?
+		)`, olderThan).
+		Find(&reminders).Error
+	return reminders, err
+}
+
 // Return all the reminders that are scheduled for deletion (one-time reminders that have been dispatched)
 func (r *reminderRepository) GetNextsRemindersToDelete() ([]models.Reminder, error) {
 	var reminders []models.Reminder

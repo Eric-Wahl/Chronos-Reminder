@@ -105,7 +105,50 @@ func (s *DFMScheduler) SendNoteNow(accountID uuid.UUID) error {
 		return err
 	}
 
-	return s.dispatcher.Dispatch(note, discordID, email)
+	return s.dispatchAndTrack(note, discordID, email)
+}
+
+// dispatchAndTrack dispatches the note and updates its per-channel failure
+// streak based on the outcome (used both by the recurring scheduler and by
+// manual test sends, so a successful manual resend also clears a channel out
+// of "zombie" tracking).
+func (s *DFMScheduler) dispatchAndTrack(note *models.DFMNote, discordID string, email string) error {
+	result := s.dispatcher.DispatchDetailed(note, discordID, email)
+
+	now := time.Now().UTC()
+	changed := false
+
+	if result.DiscordAttempted {
+		if result.DiscordErr != nil {
+			if note.DiscordFailingSince == nil {
+				note.DiscordFailingSince = &now
+				changed = true
+			}
+		} else if note.DiscordFailingSince != nil {
+			note.DiscordFailingSince = nil
+			changed = true
+		}
+	}
+
+	if result.EmailAttempted {
+		if result.EmailErr != nil {
+			if note.EmailFailingSince == nil {
+				note.EmailFailingSince = &now
+				changed = true
+			}
+		} else if note.EmailFailingSince != nil {
+			note.EmailFailingSince = nil
+			changed = true
+		}
+	}
+
+	if changed {
+		if err := s.noteRepo.Update(note); err != nil {
+			log.Printf("[ENGINE] - Error updating DFM note %s failure tracking: %v", note.ID, err)
+		}
+	}
+
+	return result.Err()
 }
 
 // SendDFMNoteNow dispatches the account's note immediately through the running scheduler service
@@ -163,7 +206,7 @@ func (s *DFMScheduler) processNote(note *models.DFMNote) {
 		return
 	}
 
-	if err := s.dispatcher.Dispatch(note, discordID, email); err != nil {
+	if err := s.dispatchAndTrack(note, discordID, email); err != nil {
 		log.Printf("[ENGINE] - Error dispatching DFM note %s: %v", note.ID, err)
 		services.LogBotError("engine:dfm_scheduler", "Failed to dispatch DFM note", fmt.Sprintf("note %s: %v", note.ID, err), nil)
 	} else if config.IsDebugMode() {

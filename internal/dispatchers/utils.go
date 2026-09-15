@@ -2,6 +2,7 @@ package dispatchers
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"image/png"
 	"time"
@@ -10,6 +11,29 @@ import (
 	"github.com/ericp/chronos-bot-reminder/internal/database/models"
 	"github.com/ericp/chronos-bot-reminder/internal/services"
 )
+
+// expectedDiscordErrorCodes are Discord API error codes that represent a
+// permanent, expected delivery failure (the user closed their DMs, the bot
+// lost access, etc.) rather than a bug in our code. Dispatch failures with
+// one of these codes don't need a Go stack trace attached — the cause is
+// already fully explained by the Discord error message itself.
+var expectedDiscordErrorCodes = map[int]bool{
+	50001: true, // Missing Access
+	50007: true, // Cannot send messages to this user (DMs closed)
+	50013: true, // Missing Permissions
+	50278: true, // Cannot send messages to this user due to having no mutual guilds
+}
+
+// IsExpectedDiscordDeliveryError reports whether err is a Discord REST error
+// with a code known to represent a normal, unrecoverable delivery failure
+// (as opposed to an unexpected internal error worth a full stack trace).
+func IsExpectedDiscordDeliveryError(err error) bool {
+	var restErr *discordgo.RESTError
+	if !errors.As(err, &restErr) || restErr.Message == nil {
+		return false
+	}
+	return expectedDiscordErrorCodes[restErr.Message.Code]
+}
 
 // =====================================================================
 // Contains everything that may be used in multiple dispatchers
@@ -70,7 +94,7 @@ func DiscordSend(session *discordgo.Session, reminder *models.Reminder, channelI
 
 	// Send the message
 	if _, err := session.ChannelMessageSendEmbed(channelID, embed); err != nil {
-		return fmt.Errorf("failed to send DM  %w", err)
+		return fmt.Errorf("failed to send reminder embed: %w", err)
 	}
 
 	img, err := services.NewDrawService("./assets").GenerateReminderImage(services.TextOverlay{

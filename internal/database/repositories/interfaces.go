@@ -53,6 +53,7 @@ type ReminderRepository interface {
 	Delete(id uuid.UUID, notify bool) error
 	GetNextReminders() ([]models.Reminder, error)
 	GetNextsRemindersToDelete() ([]models.Reminder, error)
+	GetZombieReminders(olderThan time.Time) ([]models.Reminder, error)
 	Reschedule(id uuid.UUID, newTime time.Time, notify bool) error
 	RescheduleReminder(reminder *models.Reminder, newTime time.Time, notify bool) error
 	Snooze(id uuid.UUID, snoozeUntil time.Time) error
@@ -106,6 +107,7 @@ type DFMNoteRepository interface {
 	Update(note *models.DFMNote) error
 	Delete(id uuid.UUID) error
 	GetDueNotes(now time.Time) ([]models.DFMNote, error)
+	GetNotesWithZombieChannels(olderThan time.Time) ([]models.DFMNote, error)
 }
 
 // DFMItemRepository interface defines operations for "Don't Forget Me" note items

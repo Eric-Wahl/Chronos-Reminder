@@ -35,6 +35,22 @@ func (d *DFMDispatcher) NoteWebURL() string {
 	return strings.TrimSuffix(d.webAppURL, "/") + "/dont-forget-me"
 }
 
+// DFMDeliveryResult reports the outcome of each channel attempted by a
+// Dispatch call, so the caller can track per-channel failure streaks without
+// re-parsing a joined error string.
+type DFMDeliveryResult struct {
+	DiscordAttempted bool
+	DiscordErr       error
+	EmailAttempted   bool
+	EmailErr         error
+}
+
+// Err joins whichever channel errors occurred, or nil if all attempted
+// channels succeeded.
+func (r DFMDeliveryResult) Err() error {
+	return errors.Join(r.DiscordErr, r.EmailErr)
+}
+
 // Dispatch sends the note to its owner on every enabled private channel
 // (Discord DM and/or email). discordUserID and email may be empty string if
 // the respective channel is not available. A failure on one channel does not
@@ -43,26 +59,33 @@ func (d *DFMDispatcher) Dispatch(note *models.DFMNote, discordUserID string, ema
 	if !note.SendDiscordDM && !note.SendEmail {
 		return fmt.Errorf("no destination enabled for DFM note %s", note.ID)
 	}
+	return d.DispatchDetailed(note, discordUserID, email).Err()
+}
 
-	var errs []error
+// DispatchDetailed behaves like Dispatch but reports the per-channel outcome
+// instead of a single joined error.
+func (d *DFMDispatcher) DispatchDetailed(note *models.DFMNote, discordUserID string, email string) DFMDeliveryResult {
+	var result DFMDeliveryResult
 
 	if note.SendDiscordDM {
+		result.DiscordAttempted = true
 		if discordUserID == "" || d.session == nil {
-			errs = append(errs, fmt.Errorf("no Discord identity linked for DFM note %s", note.ID))
-		} else if err := d.dispatchDiscordDM(note, discordUserID); err != nil {
-			errs = append(errs, err)
+			result.DiscordErr = fmt.Errorf("no Discord identity linked for DFM note %s", note.ID)
+		} else {
+			result.DiscordErr = d.dispatchDiscordDM(note, discordUserID)
 		}
 	}
 
 	if note.SendEmail {
+		result.EmailAttempted = true
 		if email == "" {
-			errs = append(errs, fmt.Errorf("no email linked for DFM note %s", note.ID))
-		} else if err := d.dispatchEmail(note, email); err != nil {
-			errs = append(errs, err)
+			result.EmailErr = fmt.Errorf("no email linked for DFM note %s", note.ID)
+		} else {
+			result.EmailErr = d.dispatchEmail(note, email)
 		}
 	}
 
-	return errors.Join(errs...)
+	return result
 }
 
 // RenderDFMNoteText renders the note items as a plain text checklist

@@ -9,6 +9,7 @@ import (
 	"github.com/ericp/chronos-bot-reminder/internal/config"
 	"github.com/ericp/chronos-bot-reminder/internal/database/models"
 	"github.com/ericp/chronos-bot-reminder/internal/database/repositories"
+	"github.com/ericp/chronos-bot-reminder/internal/dispatchers"
 	"github.com/google/uuid"
 )
 
@@ -57,11 +58,20 @@ func (dr *DispatcherRegistry) DispatchReminder(reminder *models.Reminder) error 
 		if err := dispatcher.Dispatch(reminder, &destination, reminder.Account); err != nil {
 			log.Printf("[DISPATCHER] - Error dispatching to %s: %v", destination.Type, err)
 			errors = append(errors, err)
-			
-			// Create error record for dispatch failure
-			stackTrace := fmt.Sprintf("Dispatch error: %v\nStack trace:\n%s", err, string(debug.Stack()))
-			dr.createErrorRecord(reminder.ID, destination.ID, stackTrace)
-			
+
+			// Known, permanent Discord delivery failures (DMs closed, no
+			// mutual guild, missing access, ...) aren't bugs — a Go stack
+			// trace adds nothing beyond what the Discord error already
+			// says, so skip it and just record the message. Anything else
+			// is unexpected and keeps the full trace for debugging.
+			var detail string
+			if dispatchers.IsExpectedDiscordDeliveryError(err) {
+				detail = fmt.Sprintf("Dispatch error: %v", err)
+			} else {
+				detail = fmt.Sprintf("Dispatch error: %v\nStack trace:\n%s", err, string(debug.Stack()))
+			}
+			dr.createErrorRecord(reminder.ID, destination.ID, detail)
+
 			continue
 		}
 

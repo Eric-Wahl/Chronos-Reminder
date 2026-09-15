@@ -25,6 +25,12 @@ type DFMNote struct {
 	SendDiscordDM bool      `gorm:"not null;default:true" json:"send_discord_dm"`
 	SendEmail     bool      `gorm:"not null;default:false" json:"send_email"`
 	LastSentAt    *time.Time `gorm:"default:null" json:"last_sent_at,omitempty"`
+	// Set to the time of the first consecutive delivery failure on that
+	// channel, cleared on the next success. Used to detect "zombie" channels
+	// that have been failing uninterrupted for a long time (see
+	// ZombieCleaner), without touching the note's actual content.
+	DiscordFailingSince *time.Time `gorm:"default:null" json:"discord_failing_since,omitempty"`
+	EmailFailingSince   *time.Time `gorm:"default:null" json:"email_failing_since,omitempty"`
 	CreatedAt     time.Time `gorm:"not null;default:now()" json:"created_at"`
 	UpdatedAt     time.Time `gorm:"not null;default:now()" json:"updated_at"`
 

@@ -19,6 +19,7 @@ type SchedulerService struct {
 	DispatcherRegistry *DispatcherRegistry
 	ReminderRepo       repositories.ReminderRepository
 	DFMScheduler       *DFMScheduler
+	ZombieCleaner      *ZombieCleaner
 }
 
 var (
@@ -81,6 +82,11 @@ func StartSchedulerService() {
 	if schedulerService.DFMScheduler != nil {
 		schedulerService.DFMScheduler.Start(schedulerCtx)
 	}
+
+	// Start the zombie cleaner
+	if schedulerService.ZombieCleaner != nil {
+		schedulerService.ZombieCleaner.Start(schedulerCtx)
+	}
 }
 
 // StopSchedulerService gracefully stops the scheduler service
@@ -97,6 +103,9 @@ func StopSchedulerService() {
 		}
 		if schedulerService.DFMScheduler != nil && schedulerService.DFMScheduler.IsRunning() {
 			schedulerService.DFMScheduler.Stop()
+		}
+		if schedulerService.ZombieCleaner != nil && schedulerService.ZombieCleaner.IsRunning() {
+			schedulerService.ZombieCleaner.Stop()
 		}
 	}
 
@@ -205,11 +214,14 @@ func NewSchedulerService(reminderRepo repositories.ReminderRepository, reminderE
 
 	// Create the Don't Forget Me scheduler
 	var dfmScheduler *DFMScheduler
+	var zombieCleaner *ZombieCleaner
 	if repos := database.GetRepositories(); repos != nil {
 		dfmDispatcher := dispatchers.NewDFMDispatcher(mailer, cfg.WebAppURL)
 		dfmScheduler = NewDFMScheduler(repos.DFMNote, repos.Identity, repos.Account, dfmDispatcher)
 		// Expose the immediate send for callers that cannot import the engine (bot commands)
 		services.DFMSendNow = dfmScheduler.SendNoteNow
+
+		zombieCleaner = NewZombieCleaner(reminderRepo, repos.DFMNote)
 	}
 
 	return &SchedulerService{
@@ -218,5 +230,6 @@ func NewSchedulerService(reminderRepo repositories.ReminderRepository, reminderE
 		DispatcherRegistry: dispatcherRegistry,
 		ReminderRepo:       reminderRepo,
 		DFMScheduler:       dfmScheduler,
+		ZombieCleaner:      zombieCleaner,
 	}
 }

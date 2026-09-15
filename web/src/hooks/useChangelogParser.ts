@@ -23,6 +23,25 @@ export const useChangelogParser = () => {
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.1] - 15/09/2026
+
+### Major additions
+
+- **Automatic cleanup of abandoned reminders**: a reminder or "Don't Forget Me" delivery channel that's been failing, unresolved, for 14 days straight is now cleaned up automatically — the broken reminder is removed, or for DFM only the failing channel (Discord DM or email) is turned off, never your note's content.
+
+### Minor additions
+
+- Mobile Day Planner: bottom navigation label shortened from "Don't Forget Me" to "DFM" so it fits alongside the other tabs.
+- Mobile Day Planner: new Consult view — a compact, read-only-style layout for reviewing your day (still lets you reorder and check items) alongside the existing Edit view.
+- Mobile Day Planner: moving a task between Morning and Afternoon is now available from the Consult view too, not just Edit.
+- Mobile Day Planner: added a light vibration when checking off a task, and reworded the "Clear" button so it's clearer it erases your whole plan.
+- Mobile Day Planner: fixed the on-screen keyboard covering the Afternoon input field when adding a task.
+
+### Fixes
+
+- Fixed a mislabeled error ("failed to send DM") showing up for Discord *channel* reminder failures, making them read like a DM problem.
+- Reminder delivery failure logs for known, unrecoverable Discord errors (closed DMs, no mutual server, missing permissions) no longer include a full stack trace — only genuinely unexpected errors do now, so real bugs stay easy to spot.
+
 ## [1.3.0] - 18/08/2026
 
 ### Major additions
