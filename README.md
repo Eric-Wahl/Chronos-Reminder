@@ -2,7 +2,7 @@
 
 ---
 
-![Version](https://img.shields.io/badge/Version-1.0.2-green)
+![Version](https://img.shields.io/badge/Version-1.3.1-green)
 [![Website](https://img.shields.io/badge/Website-chronosrmd.com-Orange?labelColor=Orange&style=flat&logo=google-chrome&link=https://chronosrmd.com)](https://chronosrmd.com)
 [![Documentation](https://img.shields.io/badge/Documentation-Docs-orange?labelColor=Red&style=flat&logo=read-the-docs&link=https://docs.chronosrmd.com)](https://docs.chronosrmd.com)
 [![Join Discord](https://img.shields.io/badge/Join%20Discord-Discord-green?labelColor=Blue&style=flat&logo=discord&link=https://discord.gg/m3MsM922QD)](https://discord.gg/m3MsM922QD)
@@ -89,9 +89,7 @@ chronos-reminder/
 
 ## Development & Contributions
 
-Contributuions encouraged and very welcome, however some rules and guidelines must be followed!
-
-Contributuions encouraged and very welcome, however some rules and guidelines must be followed!
+Contributions encouraged and very welcome, however some rules and guidelines must be followed!
 
 ### General Guidelines
 
