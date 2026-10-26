@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/common/header";
+import { DisplayTimezoneNotice } from "@/components/DisplayTimezoneNotice";
 import { Footer } from "@/components/common/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,12 +27,14 @@ import { TimezoneSelect } from "@/components/common/TimezoneSelect";
 import { PasswordStrengthIndicator } from "@/components/common/PasswordStrengthIndicator";
 import { useToast } from "@/hooks/useToast";
 import { useAuth } from "@/hooks/useAuth";
+import { useDisplayTimezone } from "@/hooks/useDisplayTimezone";
 import { ROUTES } from "@/config/routes";
 
 export function AccountPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { displayTimezone, setAccountTimezone } = useDisplayTimezone();
   const toast = useToast();
 
   // Account info state
@@ -249,6 +252,7 @@ export function AccountPage() {
       setSelectedTimezone(timezone);
 
       await accountService.updateTimezone(timezone);
+      setAccountTimezone(timezone);
 
       toast.success(t("account.timezoneUpdated"), {
         description: t("account.timezoneUpdatedDesc"),
@@ -461,6 +465,7 @@ export function AccountPage() {
   return (
     <div className="min-h-screen bg-background-main dark:bg-background-main">
       <Header />
+      <DisplayTimezoneNotice />
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24">
@@ -716,6 +721,7 @@ export function AccountPage() {
                         day: "numeric",
                         hour: "2-digit",
                         minute: "2-digit",
+                        timeZone: displayTimezone,
                       })}
                     </p>
                   </div>

@@ -55,13 +55,23 @@
     "subtitle": "Gérez et organisez tous vos rappels en un seul endroit",
     "newReminder": "Nouveau Rappel"
   },
+  "timezoneNotice": {
+    "title": "Les fuseaux horaires de votre appareil et de votre compte diffèrent",
+    "description": "Votre appareil est réglé sur {{deviceTimezone}}, mais votre compte Chronos utilise {{accountTimezone}}. Les rappels sont toujours planifiés et envoyés dans le fuseau de votre compte : les heures affichées sur ce site peuvent donc paraître décalées par rapport à votre horloge.",
+    "example": "En ce moment : {{deviceTime}} sur votre appareil, {{accountTime}} sur votre compte.",
+    "hint": "Choisissez le fuseau dans lequel afficher les heures. Cela ne change que l'affichage, et vous pouvez en changer à tout moment depuis la carte Fuseau Horaire de la page Rappels.",
+    "keepAccount": "Garder {{timezone}}",
+    "useDevice": "Utiliser mon appareil ({{timezone}})"
+  },
   "overview": {
     "totalReminders": "Nombre de Rappels",
     "activeReminders": "Rappels actifs",
     "timezone": "Fuseau Horaire",
     "accountStatus": "État du Compte",
     "active": "Actif",
-    "since": "Depuis"
+    "since": "Depuis",
+    "useDeviceTimezone": "Afficher les heures dans le fuseau de mon appareil ({{timezone}})",
+    "accountTimezoneHint": "Fuseau du compte : {{timezone}}"
   },
   "reminders": {
     "title": "Vos Rappels",

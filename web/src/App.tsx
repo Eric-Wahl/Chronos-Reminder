@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "./components/common/theme-provider";
 import { AuthProvider } from "./hooks/AuthContext";
+import { DisplayTimezoneProvider } from "./hooks/DisplayTimezoneContext";
 import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/LoginPage";
 import { VerificationPage } from "./pages/VerificationPage";
@@ -188,10 +189,12 @@ function App() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <AuthProvider>
-        <BrowserRouter>
-          <AppRoutes />
-          <Toaster richColors theme="dark" position="top-right" expand />
-        </BrowserRouter>
+        <DisplayTimezoneProvider>
+          <BrowserRouter>
+            <AppRoutes />
+            <Toaster richColors theme="dark" position="top-right" expand />
+          </BrowserRouter>
+        </DisplayTimezoneProvider>
       </AuthProvider>
     </ThemeProvider>
   );

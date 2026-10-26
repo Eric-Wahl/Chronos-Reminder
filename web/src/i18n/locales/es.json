@@ -55,13 +55,23 @@
     "subtitle": "Administra y organiza todos tus recordatorios en un solo lugar",
     "newReminder": "Nuevo Recordatorio"
   },
+  "timezoneNotice": {
+    "title": "La zona horaria de tu dispositivo y la de tu cuenta son distintas",
+    "description": "Tu dispositivo está en {{deviceTimezone}}, pero tu cuenta de Chronos usa {{accountTimezone}}. Los recordatorios siempre se programan y envían en la zona horaria de tu cuenta, por lo que las horas que ves en este sitio pueden parecer desfasadas respecto a tu reloj.",
+    "example": "Ahora mismo: {{deviceTime}} en tu dispositivo, {{accountTime}} en tu cuenta.",
+    "hint": "Elige en qué zona horaria mostrar las horas. Solo cambia cómo se muestran, y puedes cambiarlo en cualquier momento desde la tarjeta Zona Horaria de la página Recordatorios.",
+    "keepAccount": "Mantener {{timezone}}",
+    "useDevice": "Usar mi dispositivo ({{timezone}})"
+  },
   "overview": {
     "totalReminders": "Recordatorios Totales",
     "activeReminders": "Recordatorios activos",
     "timezone": "Zona Horaria",
     "accountStatus": "Estado de la Cuenta",
     "active": "Activo",
-    "since": "Desde"
+    "since": "Desde",
+    "useDeviceTimezone": "Mostrar las horas en la zona horaria de mi dispositivo ({{timezone}})",
+    "accountTimezoneHint": "Zona horaria de la cuenta: {{timezone}}"
   },
   "reminders": {
     "title": "Tus Recordatorios",

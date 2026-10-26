@@ -8,20 +8,31 @@
  * relying on the device clock.
  */
 
+const partsFormatterCache = new Map<string, Intl.DateTimeFormat>();
+
+function getPartsFormatter(timeZone: string): Intl.DateTimeFormat {
+  let formatter = partsFormatterCache.get(timeZone);
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat("en-CA", {
+      timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+    });
+    partsFormatterCache.set(timeZone, formatter);
+  }
+  return formatter;
+}
+
 /** Formats an absolute instant as YYYY-MM-DD / HH:mm strings in the given IANA timezone. */
 export function formatPartsInTimezone(
   date: Date,
   timeZone: string
 ): { dateStr: string; timeStr: string } {
-  const formatter = new Intl.DateTimeFormat("en-CA", {
-    timeZone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-  });
+  const formatter = getPartsFormatter(timeZone);
   const parts = formatter.formatToParts(date).reduce((acc, part) => {
     acc[part.type] = part.value;
     return acc;
@@ -106,4 +117,75 @@ export function zonedTimeToUtc(
 
   const offset = guess.getTime() - tzAsUtc;
   return new Date(guess.getTime() + offset);
+}
+
+/** The device's own IANA timezone. */
+export function getDeviceTimezone(): string {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone;
+}
+
+function getOffsetMinutes(date: Date, timeZone: string): number {
+  const { dateStr, timeStr } = formatPartsInTimezone(date, timeZone);
+  const [year, month, day] = dateStr.split("-").map(Number);
+  const [hour, minute] = timeStr.split(":").map(Number);
+  const wallClockAsUtc = Date.UTC(year, month - 1, day, hour, minute);
+  const instantToMinute = Math.floor(date.getTime() / 60000) * 60000;
+  return Math.round((wallClockAsUtc - instantToMinute) / 60000);
+}
+
+/**
+ * True when two timezones would show a different wall-clock time for at
+ * least one of the sampled instants (now, mid-winter, mid-summer). Compares
+ * offsets rather than names so aliases (Asia/Calcutta vs Asia/Kolkata) or
+ * zones that currently agree (Europe/Paris vs Europe/Berlin) don't count.
+ */
+export function timezonesDiffer(a: string, b: string): boolean {
+  if (a === b) return false;
+  const year = new Date().getUTCFullYear();
+  const samples = [
+    new Date(),
+    new Date(Date.UTC(year, 0, 1)),
+    new Date(Date.UTC(year, 6, 1)),
+  ];
+  return samples.some((s) => getOffsetMinutes(s, a) !== getOffsetMinutes(s, b));
+}
+
+/** YYYY-MM-DD of an absolute instant as seen in the given timezone. */
+export function getDateKeyInTimezone(date: Date, timeZone: string): string {
+  return formatPartsInTimezone(date, timeZone).dateStr;
+}
+
+/** YYYY-MM-DD of a calendar date built from local components (new Date(y, m, d)). */
+export function getLocalDateKey(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+/** Today's calendar date in the given timezone, as a local-component Date. */
+export function getTodayAsCalendarDate(timeZone: string): Date {
+  return parseDateStrLocal(getDateKeyInTimezone(new Date(), timeZone));
+}
+
+/** HH:mm (locale style) of an instant as seen in the given timezone. */
+export function formatTimeInTimezone(date: Date, timeZone: string): string {
+  return date.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone,
+  });
+}
+
+/** Short "Mon D" date of an instant as seen in the given timezone. */
+export function formatShortDateInTimezone(date: Date, timeZone: string): string {
+  return date.toLocaleDateString([], {
+    month: "short",
+    day: "numeric",
+    timeZone,
+  });
+}
+
+/** Locale date of an instant as seen in the given timezone. */
+export function formatDateInTimezone(date: Date, timeZone: string): string {
+  return date.toLocaleDateString([], { timeZone });
 }

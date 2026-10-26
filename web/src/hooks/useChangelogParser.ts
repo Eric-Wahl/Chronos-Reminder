@@ -23,6 +23,17 @@ export const useChangelogParser = () => {
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.2] - 26/10/2026
+
+### Minor additions
+
+- **Display timezone switch**: when your device is in a different timezone than your Chronos account, the Timezone card on the Reminders page now offers a switch to show times in your device's timezone instead. The choice applies across the whole website (reminders, calendar, reminder details, Don't Forget Me, account and API key dates) and is remembered on this device. It only affects how times are displayed — reminders are still scheduled and delivered in your account's timezone, and the date/time fields you fill in are still read in it. The first time we notice that your device and account timezones differ, a one-time popup explains the shift and lets you pick.
+
+### Fixes
+
+- Fixed the Reminders page calendar, list, and day details showing times (and sometimes the wrong day) in the device's timezone instead of the account's, which could make a reminder appear on a different day than it actually fires.
+- Fixed the reminder details page showing the previous day for the reminder date on devices west of UTC.
+
 ## [1.3.1] - 15/09/2026
 
 ### Major additions

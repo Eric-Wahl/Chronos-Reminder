@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Header } from "@/components/common/header";
+import { DisplayTimezoneNotice } from "@/components/DisplayTimezoneNotice";
 import { Footer } from "@/components/common/footer";
 import { useTranslation } from "react-i18next";
 import { useCallback, useEffect, useState } from "react";
@@ -43,6 +44,7 @@ import {
   parseDateStrLocal,
   zonedTimeToUtc,
 } from "@/lib/timezone";
+import { useDisplayTimezone } from "@/hooks/useDisplayTimezone";
 import { MAX_DFM_ITEMS_PER_NOTE } from "@/lib/limits";
 
 const RECURRENCE_OPTIONS = [
@@ -125,6 +127,7 @@ function computeNextDelivery(
 
 export function DontForgetMePage() {
   const { t } = useTranslation();
+  const { displayTimezone } = useDisplayTimezone();
   const [note, setNote] = useState<DFMNote | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -356,6 +359,7 @@ export function DontForgetMePage() {
   return (
     <div className="min-h-screen bg-background-main dark:bg-background-main">
       <Header />
+      <DisplayTimezoneNotice />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24">
         {/* Title Section */}
@@ -544,7 +548,7 @@ export function DontForgetMePage() {
                       <p className="text-muted-foreground mt-1">
                         {t("dfm.nextDelivery")}:{" "}
                         {new Date(note.next_fire_utc).toLocaleString(undefined, {
-                          timeZone,
+                          timeZone: displayTimezone,
                         })}
                       </p>
                       <p className="text-muted-foreground mt-1">

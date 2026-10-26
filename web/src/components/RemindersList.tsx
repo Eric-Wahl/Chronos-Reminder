@@ -13,9 +13,16 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";
 import type { Reminder } from "@/services";
+import {
+  formatShortDateInTimezone,
+  formatTimeInTimezone,
+  getDateKeyInTimezone,
+} from "@/lib/timezone";
 
 interface RemindersListProps {
   reminders: Reminder[];
+  /** IANA timezone the reminder dates and times are displayed in */
+  timeZone: string;
   onAddReminder: () => void;
 }
 
@@ -23,6 +30,7 @@ const ITEMS_PER_PAGE = 5;
 
 export function RemindersList({
   reminders,
+  timeZone,
   onAddReminder,
 }: RemindersListProps) {
   const { t } = useTranslation();
@@ -35,10 +43,12 @@ export function RemindersList({
   // Extract unique years from reminders
   const years = useMemo(() => {
     const yearSet = new Set(
-      reminders.map((r) => new Date(r.remind_at_utc).getFullYear().toString())
+      reminders.map((r) =>
+        getDateKeyInTimezone(new Date(r.remind_at_utc), timeZone).slice(0, 4)
+      )
     );
     return Array.from(yearSet).sort((a, b) => parseInt(b) - parseInt(a));
-  }, [reminders]);
+  }, [reminders, timeZone]);
 
   // Extract unique destinations
   const destinations = useMemo(() => {
@@ -54,8 +64,10 @@ export function RemindersList({
   // Filter reminders
   const filteredReminders = useMemo(() => {
     return reminders.filter((reminder) => {
-      const reminderDate = new Date(reminder.remind_at_utc);
-      const year = reminderDate.getFullYear().toString();
+      const year = getDateKeyInTimezone(
+        new Date(reminder.remind_at_utc),
+        timeZone
+      ).slice(0, 4);
 
       // Search filter
       const matchesSearch =
@@ -78,7 +90,7 @@ export function RemindersList({
 
       return matchesSearch && matchesYear && matchesDestination;
     });
-  }, [reminders, searchQuery, selectedYear, selectedDestination]);
+  }, [reminders, searchQuery, selectedYear, selectedDestination, timeZone]);
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredReminders.length / ITEMS_PER_PAGE);
@@ -240,15 +252,8 @@ export function RemindersList({
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <Clock className="w-3 h-3" />
                       <span>
-                        {reminderDate.toLocaleDateString([], {
-                          month: "short",
-                          day: "numeric",
-                        })}{" "}
-                        at{" "}
-                        {reminderDate.toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        {formatShortDateInTimezone(reminderDate, timeZone)} at{" "}
+                        {formatTimeInTimezone(reminderDate, timeZone)}
                       </span>
                     </div>
 

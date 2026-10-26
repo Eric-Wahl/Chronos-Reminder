@@ -55,13 +55,23 @@
     "subtitle": "Manage and organize all your reminders in one place",
     "newReminder": "New Reminder"
   },
+  "timezoneNotice": {
+    "title": "Your device and account timezones differ",
+    "description": "Your device is set to {{deviceTimezone}}, but your Chronos account uses {{accountTimezone}}. Reminders are always scheduled and delivered in your account's timezone, so the times shown on this website can look shifted compared to your clock.",
+    "example": "Right now: {{deviceTime}} on your device, {{accountTime}} on your account.",
+    "hint": "Choose which timezone to display times in. This only changes how times are shown, and you can switch at any time from the Timezone card on the Reminders page.",
+    "keepAccount": "Keep {{timezone}}",
+    "useDevice": "Use my device ({{timezone}})"
+  },
   "overview": {
     "totalReminders": "Total Reminders",
     "activeReminders": "Active reminders",
     "timezone": "Timezone",
     "accountStatus": "Account Status",
     "active": "Active",
-    "since": "Since"
+    "since": "Since",
+    "useDeviceTimezone": "Show times in my device timezone ({{timezone}})",
+    "accountTimezoneHint": "Account timezone: {{timezone}}"
   },
   "reminders": {
     "title": "Your Reminders",

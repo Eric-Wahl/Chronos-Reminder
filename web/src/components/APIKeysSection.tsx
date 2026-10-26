@@ -24,6 +24,8 @@ import {
 } from "lucide-react";
 import { apiKeyService, type APIKey } from "@/services";
 import { useToast } from "@/hooks/useToast";
+import { useDisplayTimezone } from "@/hooks/useDisplayTimezone";
+import { formatDateInTimezone } from "@/lib/timezone";
 
 interface APIKeyWithPlain extends APIKey {
   plainKey?: string;
@@ -32,6 +34,7 @@ interface APIKeyWithPlain extends APIKey {
 
 export function APIKeysSection() {
   const { t } = useTranslation();
+  const { displayTimezone } = useDisplayTimezone();
   const toast = useToast();
 
   // API Keys state
@@ -348,7 +351,7 @@ export function APIKeysSection() {
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {t("apiKeys.created")}{" "}
-                        {new Date(key.created_at).toLocaleDateString()}
+                        {formatDateInTimezone(new Date(key.created_at), displayTimezone)}
                       </p>
                     </div>
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-accent/20 text-accent whitespace-nowrap">

@@ -7,11 +7,14 @@ import { useNavigate } from "react-router-dom";
 import { remindersService } from "@/services";
 import type { Reminder } from "@/services";
 import { getRecurrenceTypeI18nKeyFromString } from "@/lib/recurrenceUtils";
+import { formatDateInTimezone, formatTimeInTimezone } from "@/lib/timezone";
 
 interface ReminderDetailModalProps {
   isOpen: boolean;
   date: Date | null;
   reminders: Reminder[];
+  /** IANA timezone the reminder times are displayed in */
+  timeZone: string;
   onClose: () => void;
   onReminderDeleted?: (reminderId: string) => void;
   onAddNew?: (date: Date) => void;
@@ -21,6 +24,7 @@ export function ReminderDetailModal({
   isOpen,
   date,
   reminders,
+  timeZone,
   onClose,
   onReminderDeleted,
   onAddNew,
@@ -95,11 +99,10 @@ export function ReminderDetailModal({
             {displayedReminders.length > 0 ? (
               <div className="space-y-3">
                 {displayedReminders.map((reminder) => {
-                  const reminderTime = new Date(reminder.remind_at_utc);
-                  const timeString = reminderTime.toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  });
+                  const timeString = formatTimeInTimezone(
+                    new Date(reminder.remind_at_utc),
+                    timeZone
+                  );
 
                   return (
                     <div
@@ -154,7 +157,10 @@ export function ReminderDetailModal({
                         {/* Created date */}
                         <div className="text-xs">
                           Created:{" "}
-                          {new Date(reminder.created_at).toLocaleDateString()}
+                          {formatDateInTimezone(
+                            new Date(reminder.created_at),
+                            timeZone
+                          )}
                         </div>
                       </div>
 
@@ -163,12 +169,10 @@ export function ReminderDetailModal({
                         <div className="mt-3 pt-3 border-t border-accent/20">
                           <span className="inline-block px-2 py-1 rounded text-xs bg-yellow-500/20 text-yellow-600 dark:text-yellow-400">
                             Snoozed until{" "}
-                            {new Date(
-                              reminder.snoozed_at_utc
-                            ).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
+                            {formatTimeInTimezone(
+                              new Date(reminder.snoozed_at_utc),
+                              timeZone
+                            )}
                           </span>
                         </div>
                       )}

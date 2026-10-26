@@ -5,24 +5,40 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ReminderDetailModal } from "@/components/ReminderDetailModal";
 import { cn } from "@/lib/utils";
+import {
+  formatTimeInTimezone,
+  getDateKeyInTimezone,
+  getLocalDateKey,
+  getTodayAsCalendarDate,
+} from "@/lib/timezone";
 import type { Reminder } from "@/services";
 
 interface CalendarProps {
   reminders?: Reminder[];
+  /** IANA timezone used to decide which day a reminder falls on, and to format its time */
+  timeZone: string;
   onAddReminder?: (date: Date) => void;
 }
 
-export function Calendar({ reminders = [], onAddReminder }: CalendarProps) {
+export function Calendar({
+  reminders = [],
+  timeZone,
+  onAddReminder,
+}: CalendarProps) {
   const { t } = useTranslation();
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(() =>
+    getTodayAsCalendarDate(timeZone)
+  );
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [displayedReminders, setDisplayedReminders] = useState(reminders);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
-  const [datePickerYear, setDatePickerYear] = useState(
-    new Date().getFullYear()
+  const [datePickerYear, setDatePickerYear] = useState(() =>
+    getTodayAsCalendarDate(timeZone).getFullYear()
   );
-  const [datePickerMonth, setDatePickerMonth] = useState(new Date().getMonth());
+  const [datePickerMonth, setDatePickerMonth] = useState(() =>
+    getTodayAsCalendarDate(timeZone).getMonth()
+  );
 
   // Sync displayed reminders when props change
   useEffect(() => {
@@ -55,6 +71,24 @@ export function Calendar({ reminders = [], onAddReminder }: CalendarProps) {
     t("calendar.saturday"),
   ];
 
+  // Reminders grouped by the YYYY-MM-DD they fall on in the display timezone
+  const remindersByDay = useMemo(() => {
+    const map = new Map<string, Reminder[]>();
+    for (const reminder of displayedReminders) {
+      const key = getDateKeyInTimezone(
+        new Date(reminder.remind_at_utc),
+        timeZone
+      );
+      const list = map.get(key);
+      if (list) {
+        list.push(reminder);
+      } else {
+        map.set(key, [reminder]);
+      }
+    }
+    return map;
+  }, [displayedReminders, timeZone]);
+
   // Find the next month with reminders
   const getNextReminderMonth = () => {
     let nextDate = new Date(
@@ -66,15 +100,12 @@ export function Calendar({ reminders = [], onAddReminder }: CalendarProps) {
     const maxAttempts = 24; // Check up to 2 years ahead
 
     while (attempts < maxAttempts) {
-      const monthReminders = displayedReminders.filter((reminder) => {
-        const reminderDate = new Date(reminder.remind_at_utc);
-        return (
-          reminderDate.getFullYear() === nextDate.getFullYear() &&
-          reminderDate.getMonth() === nextDate.getMonth()
-        );
-      });
+      const monthPrefix = getLocalDateKey(nextDate).slice(0, 7);
+      const hasReminders = Array.from(remindersByDay.keys()).some((key) =>
+        key.startsWith(monthPrefix)
+      );
 
-      if (monthReminders.length > 0) {
+      if (hasReminders) {
         return nextDate;
       }
 
@@ -94,14 +125,7 @@ export function Calendar({ reminders = [], onAddReminder }: CalendarProps) {
 
   // Get reminders for specific date
   const getRemindersForDate = (date: Date): Reminder[] => {
-    return displayedReminders.filter((reminder) => {
-      const reminderDate = new Date(reminder.remind_at_utc);
-      return (
-        reminderDate.getFullYear() === date.getFullYear() &&
-        reminderDate.getMonth() === date.getMonth() &&
-        reminderDate.getDate() === date.getDate()
-      );
-    });
+    return remindersByDay.get(getLocalDateKey(date)) ?? [];
   };
 
   // Get calendar days
@@ -147,16 +171,16 @@ export function Calendar({ reminders = [], onAddReminder }: CalendarProps) {
   };
 
   const goToToday = () => {
-    setCurrentDate(new Date());
+    setCurrentDate(getTodayAsCalendarDate(timeZone));
   };
 
+  const todayKey = getDateKeyInTimezone(new Date(), timeZone);
   const isToday = (day: number | null) => {
     if (!day) return false;
-    const today = new Date();
     return (
-      day === today.getDate() &&
-      currentDate.getMonth() === today.getMonth() &&
-      currentDate.getFullYear() === today.getFullYear()
+      getLocalDateKey(
+        new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
+      ) === todayKey
     );
   };
 
@@ -294,7 +318,7 @@ export function Calendar({ reminders = [], onAddReminder }: CalendarProps) {
                 <div className="flex gap-2">
                   <Button
                     onClick={() => {
-                      setCurrentDate(new Date());
+                      setCurrentDate(getTodayAsCalendarDate(timeZone));
                       setIsDatePickerOpen(false);
                     }}
                     variant="ghost"
@@ -473,12 +497,10 @@ export function Calendar({ reminders = [], onAddReminder }: CalendarProps) {
                               {reminder.message}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {new Date(
-                                reminder.remind_at_utc
-                              ).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
+                              {formatTimeInTimezone(
+                                new Date(reminder.remind_at_utc),
+                                timeZone
+                              )}
                             </p>
                           </div>
                         </div>
@@ -501,6 +523,7 @@ export function Calendar({ reminders = [], onAddReminder }: CalendarProps) {
         isOpen={isModalOpen}
         date={selectedDate}
         reminders={selectedDate ? getRemindersForDate(selectedDate) : []}
+        timeZone={timeZone}
         onClose={() => {
           setIsModalOpen(false);
           setSelectedDate(null);

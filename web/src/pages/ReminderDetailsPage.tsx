@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Header } from "@/components/common/header";
+import { DisplayTimezoneNotice } from "@/components/DisplayTimezoneNotice";
 import { DeleteConfirmModal } from "@/components/DeleteConfirmModal";
 import {
   DestinationPicker,
@@ -27,7 +28,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { getRecurrenceTypeI18nKeyFromString } from "@/lib/recurrenceUtils";
-import { isDateTimeInPast } from "@/lib/timezone";
+import {
+  formatDateInTimezone,
+  formatPartsInTimezone,
+  isDateTimeInPast,
+  parseDateStrLocal,
+} from "@/lib/timezone";
+import { useDisplayTimezone } from "@/hooks/useDisplayTimezone";
 import type { Reminder } from "@/services";
 import { remindersService } from "@/services/reminders";
 import { accountService } from "@/services/account";
@@ -48,6 +55,7 @@ export function ReminderDetailsPage() {
 
   const [reminder, setReminder] = useState<Reminder | null>(null);
   const [userTimezone, setUserTimezone] = useState<string>("UTC");
+  const { displayTimezone } = useDisplayTimezone();
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -321,6 +329,10 @@ export function ReminderDetailsPage() {
   }
 
   const isUpcoming = new Date(reminder.remind_at_utc) > new Date();
+  const displayParts = formatPartsInTimezone(
+    new Date(reminder.remind_at_utc),
+    displayTimezone
+  );
 
   return (
     <div className="min-h-screen bg-background-main dark:bg-background-main relative overflow-hidden">
@@ -362,6 +374,7 @@ export function ReminderDetailsPage() {
       </div>
 
       <Header />
+      <DisplayTimezoneNotice />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24 relative z-10">
         {/* Back Button */}
@@ -525,9 +538,9 @@ export function ReminderDetailsPage() {
                     />
                   ) : (
                     <p className="text-lg font-semibold text-foreground">
-                      {editData.date
-                        ? formatDisplayDate(new Date(editData.date))
-                        : "N/A"}
+                      {formatDisplayDate(
+                        parseDateStrLocal(displayParts.dateStr)
+                      )}
                     </p>
                   )}
                 </CardContent>
@@ -559,10 +572,10 @@ export function ReminderDetailsPage() {
                   ) : (
                     <div className="space-y-2">
                       <p className="text-lg font-semibold text-foreground">
-                        {editData.time}
+                        {displayParts.timeStr}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {userTimezone}
+                        {displayTimezone}
                       </p>
                     </div>
                   )}
@@ -762,7 +775,10 @@ export function ReminderDetailsPage() {
                       {t("reminderDetails.created")}
                     </p>
                     <p className="text-foreground font-medium">
-                      {new Date(reminder.created_at).toLocaleDateString()}
+                      {formatDateInTimezone(
+                        new Date(reminder.created_at),
+                        displayTimezone
+                      )}
                     </p>
                   </div>
                   <div>
