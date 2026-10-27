@@ -72,7 +72,7 @@ func DiscordSend(session *discordgo.Session, reminder *models.Reminder, channelI
 	if !account.DiscordSendImage() {
 		textEmbed := &discordgo.MessageEmbed{
 			Title:       "⌛ Reminder",
-			Description: fmt.Sprintf("**%s**\n\n🕒 %s", reminder.Message, reminder.RemindAtUTC.Format("Monday, January 2, 2006 at 15:04")),
+			Description: fmt.Sprintf("%s\n\n🕒 %s", reminder.Message, reminder.RemindAtUTC.Format("Monday, January 2, 2006 at 15:04")),
 			Color:       0xCEA04D,
 		}
 		msg := &discordgo.MessageSend{
